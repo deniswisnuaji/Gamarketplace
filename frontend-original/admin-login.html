@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Admin Login — GaMarketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/pages/admin-login.css" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js" defer></script>
+  <!-- Scripts (deferred: they run in this order after the page loads) -->
+  <script src="js/store.js" defer></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/pages/admin-login.js" defer></script>
+</head>
+<body>
+  <!-- Setup check: this box is hidden by css/base.css. If you can see it, the CSS files were not found. -->
+  <div class="setup-warning" role="alert">
+    <strong>⚠ The page styles did not load.</strong>
+    The <code>css</code> and <code>js</code> folders must be next to this HTML file (inside the same <code>gamarketplace</code> folder).
+    If you opened this file from inside the .zip, extract the zip first (right-click → Extract All), then open the HTML from the extracted folder.
+  </div>
+  <main class="admin-auth">
+    <p class="admin-auth__brand"><img src="assets/img/logo.svg" alt="" onerror="this.remove()" />GaMarketplace <span class="admin-badge"><i data-lucide="shield"></i> Admin</span></p>
+
+    <section class="admin-card" aria-labelledby="adminTitle">
+      <span class="admin-card__icon" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+      <h1 id="adminTitle">Admin sign in</h1>
+      <p class="admin-card__sub">For moderators only. Review listings, scam reports and users.</p>
+
+      <div class="demo-box">
+        <i data-lucide="info"></i>
+        <div>
+          <strong>Default admin account</strong> (created on first run — change it in <code>js/store.js</code>)<br />
+          Email <code>admin@ugm.ac.id</code> · Password <code>Admin2026</code><br />
+          <button type="button" id="fillDemo">Fill in default account</button>
+        </div>
+      </div>
+
+      <form id="adminForm" novalidate>
+        <label class="auth-label" for="adminEmail">Admin email</label>
+        <div class="input-wrap">
+          <i data-lucide="mail"></i>
+          <input type="email" id="adminEmail" autocomplete="username" placeholder="admin@ugm.ac.id" />
+        </div>
+        <p class="field-error" data-error="adminEmail" hidden></p>
+
+        <label class="auth-label" for="adminPassword">Password</label>
+        <div class="input-wrap">
+          <i data-lucide="lock"></i>
+          <input type="password" id="adminPassword" autocomplete="current-password" placeholder="Your password" />
+          <button type="button" class="eye-btn" id="eyeBtn" aria-label="Show password"><i data-lucide="eye"></i></button>
+        </div>
+        <p class="caps-warn" id="capsWarn" hidden><i data-lucide="triangle-alert"></i> Caps Lock is on</p>
+        <p class="field-error" data-error="adminPassword" hidden></p>
+
+        <label class="check-row"><input type="checkbox" id="adminRemember" /> Keep me signed in (only on your own device)</label>
+
+        <p class="form-alert" id="adminAlert" role="alert" hidden></p>
+        <button type="submit" class="btn btn--primary auth-submit" id="adminSubmit"><i data-lucide="log-in"></i><span>Sign in to Admin Panel</span></button>
+      </form>
+    </section>
+
+    <p class="admin-foot">Not an admin? <a href="login.html">Go to student login</a></p>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log out — GaMarketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/pages/logout.css" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js" defer></script>
+  <!-- Scripts (deferred: they run in this order after the page loads) -->
+  <script src="js/store.js" defer></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/pages/logout.js" defer></script>
+</head>
+<body>
+  <!-- Setup check: this box is hidden by css/base.css. If you can see it, the CSS files were not found. -->
+  <div class="setup-warning" role="alert">
+    <strong>⚠ The page styles did not load.</strong>
+    The <code>css</code> and <code>js</code> folders must be next to this HTML file (inside the same <code>gamarketplace</code> folder).
+    If you opened this file from inside the .zip, extract the zip first (right-click → Extract All), then open the HTML from the extracted folder.
+  </div>
+  <main>
+    <!-- Step 1: confirm -->
+    <section class="logout-card" id="confirmCard" aria-labelledby="confirmTitle">
+      <a href="main.html" class="logout-brand"><img src="assets/img/logo.svg" alt="" onerror="this.remove()" />GaMarketplace.</a>
+      <span class="logout-icon" aria-hidden="true"><i data-lucide="log-out"></i></span>
+      <h1 id="confirmTitle">Log out of GaMarketplace?</h1>
+      <p>You can log back in anytime with your UGM account.</p>
+      <label class="check-row"><input type="checkbox" id="clearData" /> Also clear drafts and layout settings on this device</label>
+      <div class="logout-actions">
+        <button type="button" class="btn btn--primary" id="logoutBtn"><i data-lucide="log-out"></i><span>Log out</span></button>
+        <button type="button" class="btn btn--outline" id="cancelBtn"><span>Cancel</span></button>
+      </div>
+    </section>
+
+    <!-- Step 2: done -->
+    <section class="logout-card" id="doneCard" aria-labelledby="doneTitle" hidden>
+      <a href="main.html" class="logout-brand"><img src="assets/img/logo.svg" alt="" onerror="this.remove()" />GaMarketplace.</a>
+      <span class="logout-icon logout-icon--done" aria-hidden="true"><i data-lucide="circle-check"></i></span>
+      <h1 id="doneTitle" tabindex="-1">You're logged out</h1>
+      <p>See you again soon. Stay safe when trading on campus!</p>
+      <div class="logout-actions">
+        <a href="login.html" class="btn btn--primary"><i data-lucide="log-in"></i><span>Log in again</span></a>
+      </div>
+      <p class="logout-note">On a shared computer, also close the browser.</p>
+    </section>
+  </main>
+
+</body>
+</html>

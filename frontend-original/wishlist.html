@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wishlist — GaMarketplace</title>
+  <meta name="description" content="Items, auctions and requests you saved." />
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- ================= STYLES ================= -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages/wishlist.css" />
+
+  <!-- Icons (Lucide) -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js" defer></script>
+  <!-- Scripts (deferred: they run in this order after the page loads) -->
+  <script src="js/store.js" defer></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/layout.js" defer></script>
+  <script src="js/pages/wishlist.js" defer></script>
+</head>
+
+<body>
+  <!-- Setup check: this box is hidden by css/base.css. If you can see it, the CSS files were not found. -->
+  <div class="setup-warning" role="alert">
+    <strong>⚠ The page styles did not load.</strong>
+    The <code>css</code> and <code>js</code> folders must be next to this HTML file (inside the same <code>gamarketplace</code> folder).
+    If you opened this file from inside the .zip, extract the zip first (right-click → Extract All), then open the HTML from the extracted folder.
+  </div>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar__header">
+      <a href="main.html" class="brand">
+        <img src="assets/img/logo.svg" alt="" class="brand__logo" width="34" height="34" />
+        <span class="brand__text">
+          <span class="brand__name">GaMarketplace.</span>
+          <span class="brand__tagline">Your Campus, Your Marketplace</span>
+        </span>
+      </a>
+
+      <button class="sidebar__close icon-btn" id="sidebarClose" type="button"
+              aria-label="Close sidebar" aria-controls="sidebar">
+        <i data-lucide="panel-left-close"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar__nav">
+      <ul class="nav-list">
+        <li>
+          <a href="main.html" class="nav-link">
+            <i data-lucide="home"></i><span>Explore</span>
+          </a>
+        </li>
+        <li>
+          <a href="marketplace.html" class="nav-link">
+            <i data-lucide="shopping-bag"></i><span>Marketplace</span>
+          </a>
+        </li>
+        <li>
+          <a href="bidding.html" class="nav-link">
+            <i data-lucide="gavel"></i><span>Bidding Arena</span>
+          </a>
+        </li>
+        <li>
+          <a href="looking-for.html" class="nav-link">
+            <i data-lucide="search"></i><span>Looking For</span>
+          </a>
+        </li>
+      </ul>
+
+      <hr class="sidebar__divider" />
+
+      <ul class="nav-list">
+        <li>
+          <a href="scam-watch.html" class="nav-link">
+            <i data-lucide="shield-alert"></i><span>Scam Watch</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar__art" aria-hidden="true">
+      <img src="assets/img/sidebar-landmark.svg" alt="" />
+    </div>
+
+    <div class="sidebar__footer">
+      <img src="assets/img/ugm-emblem.png" alt="UGM emblem" class="sidebar__emblem" width="48" height="48" />
+      <p>Exclusively for<br /><strong>UGM Students</strong></p>
+    </div>
+  </aside>
+
+  <!-- Dark overlay behind the sidebar on small screens -->
+  <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+  <!-- ================= PAGE ================= -->
+  <div class="page">
+    <!-- ---------- TOP BAR ---------- -->
+    <header class="topbar">
+      <button class="sidebar__open icon-btn" id="sidebarOpen" type="button"
+              aria-label="Open sidebar" aria-controls="sidebar" aria-expanded="true">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <form class="search" role="search" action="marketplace.html" method="get">
+        <i data-lucide="search" class="search__icon"></i>
+        <label for="globalSearch" class="sr-only">Search all items</label>
+        <input id="globalSearch" name="q" type="search"
+               placeholder="Search for textbooks, electronics, kos essentials..." autocomplete="off" />
+      </form>
+
+      <div class="topbar__actions">
+        <a href="notifications.html" class="icon-btn has-badge" id="bellLink" aria-label="Notifications (new)">
+          <i data-lucide="bell"></i>
+          <span class="badge-dot" aria-hidden="true"></span>
+        </a>
+
+        <a href="messages.html" class="icon-btn" aria-label="Messages">
+          <i data-lucide="message-circle-more"></i>
+        </a>
+
+        <div class="profile">
+          <button class="profile__toggle" id="profileToggle" type="button"
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
+            <img src="assets/img/avatar.jpg" alt="Your profile" class="avatar" width="44" height="44" />
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <ul class="profile__menu" id="profileMenu" role="menu" hidden>
+            <li role="none"><a role="menuitem" href="profile.html">My profile</a></li>
+            <li role="none"><a role="menuitem" href="my-listings.html">My listings</a></li>
+            <li role="none"><a role="menuitem" href="wishlist.html">Wishlist</a></li>
+            <li role="none"><a role="menuitem" href="settings.html">Settings</a></li>
+            <li role="none"><a role="menuitem" href="logout.html">Log out</a></li>
+          </ul>
+        </div>
+
+        <a href="list-item.html" class="btn btn--primary">
+          <i data-lucide="plus"></i><span>List an Item</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ---------- CONTENT ---------- -->
+    <div class="layout layout--wide">
+      <main class="main" id="main">
+        <header class="page-head">
+          <div>
+            <h1><span class="title-icon title-icon--red"><i data-lucide="heart"></i></span> Wishlist</h1>
+            <p>Items, auctions and requests you saved. We'll tell you when prices drop.</p>
+          </div>
+          <div class="page-head__actions">
+            <button type="button" class="btn btn--outline" id="clearUnavailable"><i data-lucide="trash-2"></i><span>Remove unavailable</span></button>
+          </div>
+        </header>
+
+        <div class="bid-toolbar wl-toolbar">
+          <label class="field field--search">
+            <i data-lucide="search"></i>
+            <span class="sr-only">Search wishlist</span>
+            <input type="search" id="wlSearch" placeholder="Search your wishlist" autocomplete="off" />
+          </label>
+          <label class="field field--sort">
+            <span class="field__label">Sort by</span>
+            <select id="sortSelect">
+              <option value="recent">Recently saved</option>
+              <option value="price-asc">Price (low–high)</option>
+              <option value="price-desc">Price (high–low)</option>
+              <option value="drop">Biggest price drop</option>
+            </select>
+            <i data-lucide="chevrons-up-down" class="field__chevron"></i>
+          </label>
+        </div>
+
+        <div class="status-tabs" role="tablist" aria-label="Saved type">
+          <button type="button" class="status-tab is-active" role="tab" aria-selected="true" data-tab="all"><span>All (<span data-count="all">0</span>)</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="item"><i data-lucide="shopping-bag"></i><span>Items (<span data-count="item">0</span>)</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="auction"><i data-lucide="gavel"></i><span>Auctions (<span data-count="auction">0</span>)</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="request"><i data-lucide="search"></i><span>Requests (<span data-count="request">0</span>)</span></button>
+        </div>
+
+        <div class="wl-grid" id="wlGrid"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <p><strong id="emptyTitle">Your wishlist is empty.</strong></p>
+          <p>Tap the ♡ on anything you like and it will show up here.</p>
+          <a href="marketplace.html" class="btn btn--primary btn--keep"><i data-lucide="shopping-bag"></i><span>Browse Marketplace</span></a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast message -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+</body>
+</html>
