@@ -1,0 +1,67 @@
+/* =========================================================
+   ADMIN LOGIN
+   ========================================================= */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 28px 16px;
+  background:
+    radial-gradient(60% 50% at 85% 10%, rgba(246, 212, 105, 0.14), transparent 60%),
+    radial-gradient(60% 60% at 10% 90%, rgba(60, 122, 106, 0.35), transparent 60%),
+    linear-gradient(160deg, #18293a 0%, #0f1c29 100%);
+}
+.admin-auth { width: 100%; max-width: 430px; }
+.admin-auth__brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; color: #fff; font-size: 22px; font-weight: 800; }
+.admin-auth__brand img { width: 36px; height: 36px; }
+.admin-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--yellow); color: var(--navy-900);
+  font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.admin-badge svg.lucide { width: 14px; height: 14px; }
+.admin-card {
+  padding: 28px 26px 24px;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+}
+.admin-card__icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 12px; border-radius: 16px; background: var(--navy-800); color: var(--yellow); }
+.admin-card__icon svg.lucide { width: 28px; height: 28px; }
+.admin-card h1 { font-size: 24px; font-weight: 800; color: var(--navy-900); letter-spacing: -0.02em; }
+.admin-card__sub { margin: 4px 0 16px; font-size: 14.5px; color: var(--text-muted); }
+
+.demo-box { display: flex; gap: 10px; padding: 10px 12px; margin-bottom: 6px; border-radius: 12px; background: #fdf3d6; color: #6a4a00; font-size: 13px; line-height: 1.45; }
+.demo-box svg.lucide { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.demo-box code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; background: rgba(255, 255, 255, 0.6); padding: 0 4px; border-radius: 4px; }
+.demo-box button { margin-top: 4px; font-size: 12.5px; font-weight: 700; color: #6a4a00; text-decoration: underline; }
+
+.auth-label { display: block; margin: 12px 0 6px; font-size: 14px; font-weight: 700; color: var(--navy-900); }
+.input-wrap {
+  position: relative; display: flex; align-items: center; height: 48px;
+  border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-wrap:focus-within { border-color: var(--navy-600); box-shadow: 0 0 0 4px rgba(43, 72, 98, 0.12); }
+.input-wrap.is-invalid { border-color: var(--red); box-shadow: 0 0 0 3px rgba(224, 70, 74, 0.12); }
+.input-wrap > svg.lucide { position: absolute; left: 14px; width: 19px; height: 19px; color: var(--text-muted); pointer-events: none; }
+.input-wrap input { flex: 1; min-width: 0; height: 100%; padding: 0 14px 0 44px; border: 0; border-radius: inherit; background: transparent; outline: none; font-size: 15px; }
+.eye-btn { display: grid; place-items: center; width: 44px; height: 100%; color: var(--text-muted); }
+.eye-btn svg.lucide { width: 19px; height: 19px; }
+.field-error { margin-top: 4px; font-size: 13px; font-weight: 600; color: var(--red); }
+.caps-warn { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12.5px; font-weight: 600; color: #8a5a10; }
+.caps-warn svg.lucide { width: 14px; height: 14px; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; cursor: pointer; }
+.check-row input { width: 17px; height: 17px; accent-color: var(--navy-800); }
+.form-alert { display: flex; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #fdecec; color: #8c1f22; font-size: 13.5px; font-weight: 600; }
+.form-alert svg.lucide { width: 18px; height: 18px; flex-shrink: 0; }
+.auth-submit { width: 100%; height: 50px; margin-top: 18px; font-size: 16px; }
+.auth-submit span { display: inline !important; }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-submit.is-loading svg.lucide { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.admin-foot { margin-top: 16px; text-align: center; font-size: 13px; color: rgba(255, 255, 255, 0.7); }
+.admin-foot a { color: #fff; font-weight: 600; text-decoration: underline; }

@@ -1,0 +1,242 @@
+{{-- Converted from frontend-original/marketplace.html. Keep the markup in sync with the approved design. --}}
+
+@extends('layouts.marketplace')
+
+@section('title', 'Marketplace — GaMarketplace')
+
+@section('description', 'Browse secondhand items from UGM students around campus.')
+
+@section('active', 'marketplace')
+
+@section('search_id', 'searchInput')
+
+@section('search_form_id', 'searchForm')
+
+@section('search_placeholder', 'Search books, electronics, kos essentials...')
+
+@push('topbar_after_search')
+  <button class="btn btn--soft" id="useLocationBtn" type="button">
+    <i data-lucide="locate-fixed"></i><span>Use my location</span>
+  </button>
+@endpush
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('marketplace/css/pages/marketplace.css') }}" />
+@endpush
+
+@push('scripts')
+    <script src="{{ asset('marketplace/js/price-popover.js') }}" defer></script>
+    <script src="{{ asset('marketplace/js/pages/marketplace.js') }}" defer></script>
+@endpush
+
+@section('content')
+  <!-- ---------- CONTENT GRID ---------- -->
+  <div class="layout">
+    <main class="main" id="main">
+
+      <!-- HERO -->
+      <section class="mp-hero">
+        <span class="mp-hero__icon"><i data-lucide="shopping-bag"></i></span>
+        <div class="mp-hero__content">
+          <h1 class="mp-hero__title">Marketplace</h1>
+          <p class="mp-hero__subtitle">Browse secondhand items <span class="highlight">around campus.</span></p>
+        </div>
+        <img src="{{ asset('marketplace/img/hero-ugm.jpg') }}" alt="Balairung building at UGM" class="mp-hero__image" />
+      </section>
+
+      <!-- SEARCH / MEET-UP POINT / SORT -->
+      <div class="bid-toolbar">
+        <label class="field field--search">
+          <i data-lucide="search"></i>
+          <span class="sr-only">Search items</span>
+          <input type="search" id="itemSearch" placeholder="Search items (e.g., headphones, buku, kipas)" autocomplete="off" />
+        </label>
+
+        <label class="field field--select">
+          <i data-lucide="map-pin"></i>
+          <span class="sr-only">Meet-up point (tikum)</span>
+          <select id="meetupSelect">
+            <option value="">All Meet-up Points</option>
+            <option value="Biologi">Biologi</option>
+            <option value="FEB">FEB</option>
+            <option value="Farmasi">Farmasi</option>
+            <option value="Filsafat">Filsafat</option>
+            <option value="Geografi">Geografi</option>
+            <option value="FH">FH</option>
+            <option value="FIB">FIB</option>
+            <option value="FISIPOL">FISIPOL</option>
+            <option value="FK-KMK">FK-KMK</option>
+            <option value="FKG">FKG</option>
+            <option value="FKH">FKH</option>
+            <option value="FKT">FKT</option>
+            <option value="FMIPA">FMIPA</option>
+            <option value="FAPERTA">FAPERTA</option>
+            <option value="FAPET">FAPET</option>
+            <option value="Psikologi">Psikologi</option>
+            <option value="FT">FT</option>
+            <option value="FTP">FTP</option>
+            <option value="SV">SV</option>
+            <option value="SPs">SPs</option>
+          </select>
+          <i data-lucide="chevron-down" class="field__chevron"></i>
+        </label>
+
+        <label class="field field--sort">
+          <span class="field__label">Sort by</span>
+          <select id="sortSelect">
+            <option value="newest">Newest</option>
+            <option value="price-asc">Price (low–high)</option>
+            <option value="price-desc">Price (high–low)</option>
+            <option value="popular">Most viewed</option>
+          </select>
+          <i data-lucide="chevrons-up-down" class="field__chevron"></i>
+        </label>
+      </div>
+
+      <!-- FILTER DROPDOWNS -->
+      <div class="filter-row">
+        <button type="button" class="pill-btn" id="filterToggle" aria-expanded="true" aria-controls="filterSelects">
+          <i data-lucide="sliders-horizontal"></i> Filter
+          <span class="pill-count" id="filterCount" hidden>0</span>
+        </button>
+
+        <div class="filter-selects" id="filterSelects">
+          <label class="pill-select">
+            <span class="sr-only">Condition</span>
+            <select data-filter="condition">
+              <option value="">Condition</option>
+              <option value="like-new">Like New</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+            </select>
+            <i data-lucide="chevron-down"></i>
+          </label>
+          <div class="price-pop" id="pricePop">
+            <button type="button" class="price-pop__btn" id="priceBtn" aria-expanded="false" aria-controls="pricePanel" aria-haspopup="dialog">
+              <span class="sr-only">Price range:</span>
+              <span id="priceBtnText">Price Range</span>
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="price-pop__panel" id="pricePanel" role="dialog" aria-label="Set price range" hidden>
+              <p class="price-pop__title">Set your price range</p>
+              <div class="price-pop__inputs">
+                <label>
+                  <span>Min price</span>
+                  <div class="money-input"><span>Rp</span><input type="text" id="popMin" inputmode="numeric" placeholder="0" autocomplete="off" /></div>
+                </label>
+                <span class="price-pop__dash" aria-hidden="true">–</span>
+                <label>
+                  <span>Max price</span>
+                  <div class="money-input"><span>Rp</span><input type="text" id="popMax" inputmode="numeric" placeholder="No limit" autocomplete="off" /></div>
+                </label>
+              </div>
+              <div class="price-pop__presets" aria-label="Quick ranges">
+              <button type="button" data-preset="-100000">Under 100rb</button>
+              <button type="button" data-preset="100000-500000">100rb – 500rb</button>
+              <button type="button" data-preset="500000-1000000">500rb – 1jt</button>
+              <button type="button" data-preset="1000000-">Above 1jt</button>
+              </div>
+              <p class="price-pop__error" id="popError" role="alert" hidden></p>
+              <div class="price-pop__actions">
+                <button type="button" class="btn btn--outline" data-clear>Clear</button>
+                <button type="button" class="btn btn--primary" data-apply><span>Apply</span></button>
+              </div>
+            </div>
+          </div>
+          <label class="pill-select">
+            <span class="sr-only">Availability</span>
+            <select data-filter="availability">
+              <option value="">Availability</option>
+              <option value="available">Available</option>
+              <option value="sold">Sold</option>
+            </select>
+            <i data-lucide="chevron-down"></i>
+          </label>
+          <button type="button" class="reset-btn" id="resetBtn">
+            <i data-lucide="rotate-cw"></i> Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- CATEGORY TABS -->
+      <nav class="cat-tabs" aria-label="Categories">
+        <button class="cat-tab is-active" type="button" data-cat="all" aria-pressed="true">
+          <i data-lucide="layout-grid"></i><span>All Items (<span data-cat-count="all">0</span>)</span>
+        </button>
+        <button class="cat-tab" type="button" data-cat="education" aria-pressed="false"><i data-lucide="graduation-cap"></i>Education</button>
+        <button class="cat-tab" type="button" data-cat="electronics" aria-pressed="false"><i data-lucide="laptop"></i>Electronics</button>
+        <button class="cat-tab" type="button" data-cat="furniture" aria-pressed="false"><i data-lucide="armchair"></i>Furniture</button>
+        <button class="cat-tab" type="button" data-cat="fashion" aria-pressed="false"><i data-lucide="shirt"></i>Fashion</button>
+        <button class="cat-tab" type="button" data-cat="hobbies" aria-pressed="false"><i data-lucide="gamepad-2"></i>Hobbies</button>
+        <button class="cat-tab" type="button" data-cat="self-care" aria-pressed="false"><i data-lucide="sparkles"></i>Self-Care</button>
+        <button class="cat-tab" type="button" data-cat="others" aria-pressed="false"><i data-lucide="ellipsis"></i>Others</button>
+      </nav>
+
+      <!-- RESULTS -->
+      <section class="results" aria-label="Items">
+        <div class="results__bar">
+          <p class="results__count" aria-live="polite"><strong id="resultCount">0</strong> items found around UGM</p>
+          <div class="view-toggle" role="group" aria-label="View">
+            <button type="button" class="view-btn is-active" data-view="grid" aria-pressed="true" aria-label="Grid view">
+              <i data-lucide="layout-grid"></i>
+            </button>
+            <button type="button" class="view-btn" data-view="list" aria-pressed="false" aria-label="List view">
+              <i data-lucide="list"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Product cards are rendered here by the script below -->
+        <div class="product-grid" id="productGrid"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <p><strong>No items match these filters.</strong></p>
+          <p>Try another meet-up point or category, or reset the filters.</p>
+          <button type="button" class="btn btn--outline" id="emptyClearBtn">Reset filters</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- ---------- RIGHT PANEL ---------- -->
+    <aside class="rightbar" aria-label="Around UGM">
+      <!-- Around UGM -->
+      <section class="panel around">
+        <a href="meetup-map.html" class="around__head">
+          <span class="around__icon"><i data-lucide="map-pin"></i></span>
+          <span class="around__text">
+            <strong>Around UGM</strong>
+            <small>Find items near you and pick up easily on campus.</small>
+          </span>
+          <i data-lucide="chevron-right"></i>
+        </a>
+        <div class="around__map">
+          <iframe title="Google Map around Universitas Gadjah Mada" src="https://www.google.com/maps?q=Universitas%20Gadjah%20Mada%2C%20Yogyakarta&amp;z=15&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <span class="around__distance" id="distanceBadge">
+            <i data-lucide="footprints"></i>
+            <span><strong>Your distance</strong><small>tap “Use my location”</small></span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Popular pickup spots -->
+      <section class="panel">
+        <h2 class="panel__title"><i data-lucide="users"></i> Popular Pickup Spots</h2>
+        <ul class="spot-list">
+          <li><a href="meetup-map.html#balairung"><i data-lucide="map-pin"></i><span>Balairung UGM</span><i data-lucide="chevron-right"></i></a></li>
+          <li><a href="meetup-map.html#perpustakaan"><i data-lucide="map-pin"></i><span>Perpustakaan Pusat UGM</span><i data-lucide="chevron-right"></i></a></li>
+          <li><a href="meetup-map.html#student-center"><i data-lucide="map-pin"></i><span>Student Center</span><i data-lucide="chevron-right"></i></a></li>
+          <li><a href="meetup-map.html#boulevard"><i data-lucide="map-pin"></i><span>UGM Boulevard</span><i data-lucide="chevron-right"></i></a></li>
+        </ul>
+      </section>
+
+      <!-- Nearby listings -->
+      <section class="panel">
+        <div class="panel__row">
+          <h2 class="panel__title"><i data-lucide="zap" class="icon-zap"></i> <span id="nearbyTitle">Newest Listings</span></h2>
+          <a href="#productGrid" class="link-more" id="nearbySeeAll">See All <i data-lucide="arrow-right"></i></a>
+        </div>
+        <ul class="nearby-list" id="nearbyList"></ul>
+      </section>
+    </aside>
+  </div>
+@endsection
