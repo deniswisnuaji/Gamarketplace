@@ -1,8 +1,5 @@
 # GaMarketplace
 
-UGM campus marketplace for secondhand items, auctions, wanted-item requests, chat and safer campus meet-ups. Built for the COMMIT Web Design Competition 2026.
-# Gamarketplace
-
 RAAR's Project repository for COMMIT Web Design Competition 2026.
 
 #### Created with the _**Power of Friendship✨**_ & _Barely_ ~~un~~healthy amount of caffeine and milk☕.
