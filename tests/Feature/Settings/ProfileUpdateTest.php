@@ -19,7 +19,7 @@ test('profile information can be updated', function () {
         ->actingAs($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'test@mail.ugm.ac.id',
         ]);
 
     $response
@@ -29,7 +29,7 @@ test('profile information can be updated', function () {
     $user->refresh();
 
     expect($user->name)->toBe('Test User');
-    expect($user->email)->toBe('test@example.com');
+    expect($user->email)->toBe('test@mail.ugm.ac.id');
     expect($user->email_verified_at)->toBeNull();
 });
 
@@ -40,16 +40,16 @@ test('email is stored in lowercase so the user can still log in', function () {
         ->actingAs($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
-            'email' => 'Test@Example.com',
+            'email' => 'Test@Mail.Ugm.Ac.Id',
         ])
         ->assertSessionHasNoErrors();
 
-    expect($user->refresh()->email)->toBe('test@example.com');
+    expect($user->refresh()->email)->toBe('test@mail.ugm.ac.id');
 
     $this->post(route('logout'));
 
     $this->post(route('login.store'), [
-        'email' => 'Test@Example.com',
+        'email' => 'Test@Mail.Ugm.Ac.Id',
         'password' => 'password',
     ]);
 
@@ -57,7 +57,7 @@ test('email is stored in lowercase so the user can still log in', function () {
 });
 
 test('email must be unique regardless of case', function () {
-    User::factory()->create(['email' => 'taken@example.com']);
+    User::factory()->create(['email' => 'taken@mail.ugm.ac.id']);
 
     $user = User::factory()->create();
 
@@ -66,7 +66,7 @@ test('email must be unique regardless of case', function () {
         ->from(route('profile.edit'))
         ->patch(route('profile.update'), [
             'name' => 'Test User',
-            'email' => 'Taken@Example.com',
+            'email' => 'Taken@Mail.Ugm.Ac.Id',
         ]);
 
     $response
@@ -91,7 +91,7 @@ test('email verification status is unchanged when the email address is unchanged
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
 
-test('user can delete their account', function () {
+test('account deletion waits for a retention review', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -100,12 +100,8 @@ test('user can delete their account', function () {
             'password' => 'password',
         ]);
 
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect(route('home'));
-
-    $this->assertGuest();
-    expect($user->fresh())->toBeNull();
+    $response->assertStatus(409);
+    expect($user->fresh())->not->toBeNull();
 });
 
 test('correct password must be provided to delete account', function () {

@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\MarketplaceData;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        View::composer(['layouts.marketplace', 'layouts.marketplace-auth'], function ($view) {
+            $view->with('marketplaceState', app(MarketplaceData::class)->snapshot(auth()->user()));
+        });
     }
 
     /**

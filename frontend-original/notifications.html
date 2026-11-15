@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notifications — GaMarketplace</title>
+  <meta name="description" content="Your GaMarketplace notifications." />
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- ================= STYLES ================= -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages/notifications.css" />
+
+  <!-- Icons (Lucide) -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js" defer></script>
+  <!-- Scripts (deferred: they run in this order after the page loads) -->
+  <script src="js/store.js" defer></script>
+  <script src="js/common.js" defer></script>
+  <script src="js/layout.js" defer></script>
+  <script src="js/pages/notifications.js" defer></script>
+</head>
+
+<body>
+  <!-- Setup check: this box is hidden by css/base.css. If you can see it, the CSS files were not found. -->
+  <div class="setup-warning" role="alert">
+    <strong>⚠ The page styles did not load.</strong>
+    The <code>css</code> and <code>js</code> folders must be next to this HTML file (inside the same <code>gamarketplace</code> folder).
+    If you opened this file from inside the .zip, extract the zip first (right-click → Extract All), then open the HTML from the extracted folder.
+  </div>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar__header">
+      <a href="main.html" class="brand">
+        <img src="assets/img/logo.svg" alt="" class="brand__logo" width="34" height="34" />
+        <span class="brand__text">
+          <span class="brand__name">GaMarketplace.</span>
+          <span class="brand__tagline">Your Campus, Your Marketplace</span>
+        </span>
+      </a>
+
+      <button class="sidebar__close icon-btn" id="sidebarClose" type="button"
+              aria-label="Close sidebar" aria-controls="sidebar">
+        <i data-lucide="panel-left-close"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar__nav">
+      <ul class="nav-list">
+        <li>
+          <a href="main.html" class="nav-link">
+            <i data-lucide="home"></i><span>Explore</span>
+          </a>
+        </li>
+        <li>
+          <a href="marketplace.html" class="nav-link">
+            <i data-lucide="shopping-bag"></i><span>Marketplace</span>
+          </a>
+        </li>
+        <li>
+          <a href="bidding.html" class="nav-link">
+            <i data-lucide="gavel"></i><span>Bidding Arena</span>
+          </a>
+        </li>
+        <li>
+          <a href="looking-for.html" class="nav-link">
+            <i data-lucide="search"></i><span>Looking For</span>
+          </a>
+        </li>
+      </ul>
+
+      <hr class="sidebar__divider" />
+
+      <ul class="nav-list">
+        <li>
+          <a href="scam-watch.html" class="nav-link">
+            <i data-lucide="shield-alert"></i><span>Scam Watch</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar__art" aria-hidden="true">
+      <img src="assets/img/sidebar-landmark.svg" alt="" />
+    </div>
+
+    <div class="sidebar__footer">
+      <img src="assets/img/ugm-emblem.png" alt="UGM emblem" class="sidebar__emblem" width="48" height="48" />
+      <p>Exclusively for<br /><strong>UGM Students</strong></p>
+    </div>
+  </aside>
+
+  <!-- Dark overlay behind the sidebar on small screens -->
+  <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+  <!-- ================= PAGE ================= -->
+  <div class="page">
+    <!-- ---------- TOP BAR ---------- -->
+    <header class="topbar">
+      <button class="sidebar__open icon-btn" id="sidebarOpen" type="button"
+              aria-label="Open sidebar" aria-controls="sidebar" aria-expanded="true">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <form class="search" role="search" action="marketplace.html" method="get">
+        <i data-lucide="search" class="search__icon"></i>
+        <label for="globalSearch" class="sr-only">Search all items</label>
+        <input id="globalSearch" name="q" type="search"
+               placeholder="Search for textbooks, electronics, kos essentials..." autocomplete="off" />
+      </form>
+
+      <div class="topbar__actions">
+        <a href="notifications.html" class="icon-btn has-badge" id="bellLink" aria-label="Notifications (new)">
+          <i data-lucide="bell"></i>
+          <span class="badge-dot" aria-hidden="true"></span>
+        </a>
+
+        <a href="messages.html" class="icon-btn" aria-label="Messages">
+          <i data-lucide="message-circle-more"></i>
+        </a>
+
+        <div class="profile">
+          <button class="profile__toggle" id="profileToggle" type="button"
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
+            <img src="assets/img/avatar.jpg" alt="Your profile" class="avatar" width="44" height="44" />
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <ul class="profile__menu" id="profileMenu" role="menu" hidden>
+            <li role="none"><a role="menuitem" href="profile.html">My profile</a></li>
+            <li role="none"><a role="menuitem" href="my-listings.html">My listings</a></li>
+            <li role="none"><a role="menuitem" href="wishlist.html">Wishlist</a></li>
+            <li role="none"><a role="menuitem" href="settings.html">Settings</a></li>
+            <li role="none"><a role="menuitem" href="logout.html">Log out</a></li>
+          </ul>
+        </div>
+
+        <a href="list-item.html" class="btn btn--primary">
+          <i data-lucide="plus"></i><span>List an Item</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ---------- CONTENT GRID ---------- -->
+    <div class="layout">
+      <main class="main" id="main">
+        <header class="page-head">
+          <div>
+            <h1><span class="title-icon"><i data-lucide="bell"></i></span> Notifications</h1>
+            <p><strong id="unreadText">0 unread</strong> · offers, bids, messages and safety alerts.</p>
+          </div>
+          <div class="page-head__actions">
+            <button type="button" class="btn btn--outline" id="markAllBtn"><i data-lucide="check-check"></i><span>Mark all as read</span></button>
+          </div>
+        </header>
+
+        <div class="status-tabs" role="tablist" aria-label="Notification type">
+          <button type="button" class="status-tab is-active" role="tab" aria-selected="true" data-tab="all"><span>All</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="unread"><span>Unread (<span data-count="unread">0</span>)</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="trade"><i data-lucide="shopping-bag"></i><span>Buying &amp; Selling</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="bidding"><i data-lucide="gavel"></i><span>Bidding</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="safety"><i data-lucide="shield-alert"></i><span>Safety</span></button>
+        </div>
+
+        <div id="notifGroups"></div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <p><strong>You're all caught up 🎉</strong></p>
+          <p>New notifications will show up here.</p>
+        </div>
+      </main>
+
+      <aside class="rightbar" aria-label="Notification settings">
+        <section class="panel">
+          <h2 class="panel__title"><i data-lucide="bell-ring" class="icon-blue"></i> Quick Settings</h2>
+          <ul class="toggle-list">
+            <li><div><strong>New messages</strong><span>When someone chats you.</span></div>
+              <label class="switch"><input type="checkbox" data-pref="notifMessages" aria-label="Message notifications" /><span class="switch__track"></span></label></li>
+            <li><div><strong>Outbid alerts</strong><span>Know right away when you lose the lead.</span></div>
+              <label class="switch"><input type="checkbox" data-pref="notifOutbid" aria-label="Outbid alerts" /><span class="switch__track"></span></label></li>
+            <li><div><strong>Scam alerts</strong><span>High-risk verified alerts only.</span></div>
+              <label class="switch"><input type="checkbox" data-pref="notifScam" aria-label="Scam alerts" /><span class="switch__track"></span></label></li>
+          </ul>
+          <a href="settings.html#notifications" class="btn btn--outline btn--block"><span>All notification settings</span> <i data-lucide="arrow-right"></i></a>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Toast message -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+</body>
+</html>
