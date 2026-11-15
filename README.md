@@ -6,7 +6,7 @@ RAAR's Project repository for COMMIT Web Design Competition 2026.
 
 The `fullstack` branch connects the approved Blade/JavaScript frontend to Laravel session authentication and a relational database. It includes protected student/admin flows, listing moderation, product requests and offers, auctions, private chat/meet-up proposals, wishlists, notifications, and an admin queue for scam/bug/listing/user/support reports.
 
-Start with [the fullstack setup guide](docs/FULLSTACK_SETUP.md). See [schema decisions and ERD](docs/schema-decisions.md) and [verification evidence](docs/verification.md).
+Start with [the fullstack setup guide](docs/FULLSTACK_SETUP.md).
 
 ```bash
 composer install
