@@ -44,12 +44,12 @@
         <h2 id="authTitle">Welcome back 👋</h2>
         <p class="auth-card__sub" id="authSub">Log in to buy, sell, and chat with UGM students.</p>
 
-        <!-- UGM account sign-in. For now it signs in as user@mail.ugm.ac.id (see js/store.js). -->
+        <!-- UGM SSO requires a separately configured identity provider. -->
         <button type="button" class="sso-btn" id="ssoBtn">
           
-          <span>Continue with UGM account</span>
+          <span>UGM SSO unavailable</span>
         </button>
-        <p class="sso-note">For now this signs you in as <strong>user@mail.ugm.ac.id</strong>.</p>
+        <p class="sso-note">Use your UGM email and marketplace password to sign in.</p>
         <div class="divider">or use your UGM email</div>
 
         <!-- LOG IN -->
@@ -128,7 +128,7 @@
         </form>
 
         <p class="auth-switch"><a href="admin-login.html" class="link-btn">Admin or moderator? Sign in here</a></p>
-        <p class="auth-legal">Accounts are saved in this browser for now. In the Laravel app this form posts to the backend's auth routes with @@csrf.</p>
+        <p class="auth-legal">Your account and listings are stored securely on the marketplace server.</p>
       </div>
     </main>
   </div>

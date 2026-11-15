@@ -24,6 +24,7 @@
 
     <!-- Icons + scripts (deferred: they run in this order after the page loads) -->
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js" defer></script>
+    <script>window.GM_BOOTSTRAP = {{ Illuminate\Support\Js::from($marketplaceState ?? []) }};</script>
     <script src="{{ asset('marketplace/js/store.js') }}" defer></script>
     <script src="{{ asset('marketplace/js/common.js') }}" defer></script>
     <script src="{{ asset('marketplace/js/layout.js') }}" defer></script>

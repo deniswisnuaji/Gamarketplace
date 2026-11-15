@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("#photoRemove").addEventListener("click", () => { draft.photo = ""; renderPhoto(); updateSaveBar(); });
 
-  $("#settingsForm").addEventListener("submit", (e) => {
+  $("#settingsForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (draft.name.trim().length < 2) { $("#sName").focus(); return toast("Display name needs at least 2 characters."); }
     if (draft.username.length < 3) { $("#sUsername").focus(); return toast("Username needs at least 3 characters."); }
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const prefs = {};
     Object.keys(PREF_DEFAULTS).forEach((k) => (prefs[k] = !!draft[k]));
     try {
-      Store.updateUser(me().id, {
+      await Store.updateUser(me().id, {
         name: draft.name.trim(), username: draft.username, faculty: draft.faculty, tikum: draft.tikum, bio: draft.bio.trim(),
         phone: draft.phone.trim(), photo: draft.photo, showPhone: !!draft.showPhone, showFaculty: !!draft.showFaculty, prefs,
       });
@@ -86,9 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const fail = (m) => { err.textContent = m; err.hidden = false; };
     if (!oldPw) return fail("Enter your current password.");
     if (newPw.length < 8 || !/\d/.test(newPw) || !/[a-z]/i.test(newPw)) return fail("New password needs 8+ characters with letters and numbers.");
-    const res = await Store.changePassword(me().id, oldPw, newPw);
+    if ($("#pwConfirm").value !== newPw) return fail("Passwords do not match.");
+    const res = await Store.changePassword(me().id, oldPw, newPw, $("#pwConfirm").value);
     if (res.error) return fail(res.error);
-    err.hidden = true; $("#pwOld").value = ""; $("#pwNew").value = "";
+    err.hidden = true; $("#pwOld").value = ""; $("#pwNew").value = ""; $("#pwConfirm").value = "";
     toast("Password updated.");
   });
 
@@ -99,19 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { rootMargin: "-30% 0px -60% 0px" });
   $$(".settings-card").forEach((sec) => observer.observe(sec));
 
-  // Delete account
-  const delDialog = $("#deleteDialog");
-  $("#deleteBtn").addEventListener("click", () => { $("#deleteConfirm").value = ""; $("#deleteSubmit").disabled = true; delDialog.showModal(); $("#deleteConfirm").focus(); });
-  $("#deleteConfirm").addEventListener("input", (e) => { $("#deleteSubmit").disabled = e.target.value.trim() !== "DELETE"; });
-  $("#deleteForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    if ($("#deleteConfirm").value.trim() !== "DELETE") return;
-    const id = me().id;
-    Store.logout();
-    Store.deleteUser(id);
-    saved = draft; // no unsaved-changes warning
-    location.href = "main.html";
-  });
+  // Account removal is handled by support so moderation and chat history remain intact.
+  $("#deleteBtn").addEventListener("click", () => { location.href = "scam-watch.html?report=1&kind=other&about=Account%20removal%20request"; });
 
   fillForm();
   // Coming from "Continue with UGM account" for the first time

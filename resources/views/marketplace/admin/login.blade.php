@@ -21,15 +21,6 @@
       <h1 id="adminTitle">Admin sign in</h1>
       <p class="admin-card__sub">For moderators only. Review listings, scam reports and users.</p>
 
-      <div class="demo-box">
-        <i data-lucide="info"></i>
-        <div>
-          <strong>Default admin account</strong> (created on first run — change it in <code>js/store.js</code>)<br />
-          Email <code>admin@ugm.ac.id</code> · Password <code>Admin2026</code><br />
-          <button type="button" id="fillDemo">Fill in default account</button>
-        </div>
-      </div>
-
       <form id="adminForm" novalidate>
         <label class="auth-label" for="adminEmail">Admin email</label>
         <div class="input-wrap">

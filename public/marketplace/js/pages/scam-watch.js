@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const expanded = new Set();
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const isMine = (r) => { const u = me(); return u && r.reporterId === u.id; };
-  const visible = () => Store.reports().filter((r) => r.status === "verified" || isMine(r));
+  const visible = () => Store.reports().filter((r) => (r.kind === "scam" && r.status === "verified") || isMine(r));
 
   function passes(a) {
     const text = `${a.title} ${a.desc} ${TYPE_LABEL_SW[a.type]}`.toLowerCase();
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return a.status === "verified" || (isMine(a) && a.status !== "dismissed");
   }
   function sortList(list) {
-    const key = { newest: (a) => -(a.verifiedAt || a.createdAt), seen: (a) => -a.seenBy.length, severity: (a) => -SEV_RANK[a.risk] * 1e13 - (a.verifiedAt || a.createdAt) }[view.sort];
+    const key = { newest: (a) => -(a.verifiedAt || a.createdAt), seen: (a) => -(a.seenCount ?? a.seenBy.length), severity: (a) => -SEV_RANK[a.risk] * 1e13 - (a.verifiedAt || a.createdAt) }[view.sort];
     return list.sort((x, y) => key(x) - key(y));
   }
 
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const seen = u && a.seenBy.includes(u.id);
     const tips = TYPE_TIPS[a.type] || TYPE_TIPS.other;
     const statusTag = a.status === "verified" ? '<span class="chip-tag chip-tag--verified"><i data-lucide="badge-check"></i> Verified</span>'
-      : a.status === "dismissed" ? '<span class="chip-tag">Not published</span>'
+      : a.status === "dismissed" ? '<span class="chip-tag">Closed</span>'
       : '<span class="chip-tag chip-tag--review"><i data-lucide="hourglass"></i> Under review</span>';
     return `
       <article class="alert-card alert-card--${a.risk}${isMine(a) ? " is-mine" : ""}" id="alert-${a.id}" data-id="${a.id}">
@@ -54,24 +54,25 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="alert-card__body">
           <div class="alert-card__tags">
             ${a.status === "verified" ? `<span class="chip-tag chip-tag--${a.risk}">${cap(a.risk)} risk</span>` : ""}
-            <span class="chip-tag">${TYPE_LABEL_SW[a.type]}</span>
+            <span class="chip-tag">${a.kind === "scam" ? TYPE_LABEL_SW[a.type] : esc(({bug: "Website bug", listing: "Listing complaint", user: "User complaint", other: "Support"})[a.kind] || "Report")}</span>
             ${statusTag}
             ${isMine(a) ? '<span class="chip-tag chip-tag--mine">Your report</span>' : ""}
           </div>
           <h3 class="alert-card__title">${esc(a.title)}</h3>
           <p class="alert-card__summary">${esc(a.desc)}</p>
+          ${isMine(a) && a.reviewNote ? `<p class="hint">Admin reply: ${esc(a.reviewNote)}</p>` : ""}
           <div class="alert-card__meta">
             <span><i data-lucide="${a.channel === "online" ? "message-circle-warning" : "map-pin"}"></i>${a.channel === "online" ? "Online / chat" + (a.place !== "Online" ? " · " + esc(a.place) : "") : "Meet-up · " + esc(a.place)}</span>
             <span><i data-lucide="clock"></i>${timeAgo(a.verifiedAt || a.createdAt)}</span>
-            ${a.status === "verified" ? `<span><i data-lucide="users"></i>${a.seenBy.length} student${a.seenBy.length === 1 ? "" : "s"} saw this too</span>` : ""}
+            ${a.status === "verified" ? `<span><i data-lucide="users"></i>${(a.seenCount ?? a.seenBy.length)} student${(a.seenCount ?? a.seenBy.length) === 1 ? "" : "s"} saw this too</span>` : ""}
           </div>
-          ${open ? `
+          ${open && a.kind === "scam" ? `
           <div class="alert-card__details" id="details-${a.id}">
             <div class="details--flags"><h4><i data-lucide="flag"></i> Red flags</h4><ul>${tips.flags.map((f) => `<li>${esc(f)}</li>`).join("")}</ul></div>
             <div class="details--do"><h4><i data-lucide="shield-check"></i> How to stay safe</h4><ul>${tips.todo.map((f) => `<li>${esc(f)}</li>`).join("")}</ul></div>
           </div>` : ""}
           <div class="alert-card__actions">
-            <button type="button" class="small-btn" data-toggle="${a.id}" aria-expanded="${open}" aria-controls="details-${a.id}"><span>${open ? "Hide tips" : "Red flags & tips"}</span> <i data-lucide="chevron-down"></i></button>
+            ${a.kind === "scam" ? `<button type="button" class="small-btn" data-toggle="${a.id}" aria-expanded="${open}" aria-controls="details-${a.id}"><span>${open ? "Hide tips" : "Red flags & tips"}</span> <i data-lucide="chevron-down"></i></button>` : ""}
             ${a.status === "verified" && !isMine(a) ? `<button type="button" class="small-btn${seen ? " is-on" : ""}" data-seen-btn="${a.id}" aria-pressed="${!!seen}"><i data-lucide="${seen ? "check" : "eye"}"></i><span>${seen ? "You saw this too" : "I saw this too"}</span></button>` : ""}
             ${a.status === "verified" ? `<button type="button" class="small-btn" data-share="${a.id}"><i data-lucide="share-2"></i><span>Share warning</span></button>` : ""}
           </div>
@@ -86,12 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#alertList").innerHTML = list.map(alertHTML).join("");
     const empty = $("#emptyState");
     empty.hidden = list.length > 0;
-    empty.querySelector("strong").textContent = Store.reports().some((r) => r.status === "verified") ? "No alerts match these filters." : "No verified scam alerts yet.";
-    const verified = Store.reports().filter((r) => r.status === "verified");
+    empty.querySelector("strong").textContent = Store.reports().some((r) => r.kind === "scam" && r.status === "verified") ? "No alerts match these filters." : "No verified scam alerts yet.";
+    const verified = Store.reports().filter((r) => r.kind === "scam" && r.status === "verified");
     $("#statHigh").textContent = verified.filter((r) => r.risk === "high").length;
     $("#statVerified").textContent = verified.length;
     $("#statWeek").textContent = verified.filter((r) => Date.now() - r.verifiedAt < 7 * 86400e3).length;
-    $("#statSeen").textContent = verified.reduce((s, r) => s + r.seenBy.length, 0);
+    $("#statSeen").textContent = verified.reduce((s, r) => s + (r.seenCount ?? r.seenBy.length), 0);
     icons();
   }
 
@@ -101,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const seenBtn = e.target.closest("[data-seen-btn]");
     if (seenBtn) {
       if (!requireLogin("Log in to confirm this alert.")) return;
-      const on = Store.toggleSeen(seenBtn.dataset.seenBtn);
+      const on = await Store.toggleSeen(seenBtn.dataset.seenBtn);
       render(); $(`[data-seen-btn="${seenBtn.dataset.seenBtn}"]`)?.focus();
       if (on) toast("Thanks! This helps other students take it seriously.");
       return;
@@ -113,26 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const text = `⚠️ Scam Watch GaMarketplace: ${a.title}\n${a.desc}\nTips: ${tips.todo.join("; ")}.`;
       try { if (navigator.share) await navigator.share({ title: a.title, text }); else { await navigator.clipboard.writeText(text); toast("Warning copied. Paste it in your group chat."); } } catch {}
     }
-  });
-
-  /* ---- Check before you pay: searches verified reports ---- */
-  const normalize = (v) => String(v).toLowerCase().trim().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "").replace(/^\+?62/, "0").replace(/(?<=\d)[\s.-](?=\d)/g, "");
-  $("#checkForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const raw = $("#checkInput").value;
-    if (!raw.trim()) return $("#checkInput").focus();
-    const q = normalize(raw);
-    const hits = Store.reports().filter((r) => r.status === "verified" && r.ident && (normalize(r.ident) === q || (q.length > 5 && (normalize(r.ident).includes(q) || q.includes(normalize(r.ident))))));
-    const box = $("#checkResult");
-    box.hidden = false;
-    if (hits.length) {
-      box.className = "checker__result checker__result--bad";
-      box.innerHTML = `<i data-lucide="octagon-alert"></i><span><strong>Found in ${hits.length} verified report${hits.length > 1 ? "s" : ""}</strong> (${esc(TYPE_LABEL_SW[hits[0].type])}). Don't pay or click. <a href="#alert-${hits[0].id}">See the alert</a></span>`;
-    } else {
-      box.className = "checker__result checker__result--ok";
-      box.innerHTML = `<i data-lucide="shield-check"></i><span><strong>No verified reports found.</strong> That's not a guarantee — still check the item in person and confirm payments in your own bank app.</span>`;
-    }
-    icons();
   });
 
   /* ---- Checklist (saved per browser) ---- */
@@ -152,8 +133,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const dialog = $("#reportDialog");
   let evidence = []; // { url, file }
   function openReport(prefillTitle) {
-    if (!requireLogin("Log in to report a scam.")) return;
+    if (!requireLogin("Log in to submit a report.")) return;
     $("#reportForm").reset();
+    const source = new URLSearchParams(location.search);
+    const requestedKind = source.get("kind");
+    $("#rKind").value = ["scam", "bug", "listing", "user", "other"].includes(requestedKind) ? requestedKind : "scam";
     $("#rAnon").checked = true;
     $("#rError").hidden = true;
     evidence.forEach((p) => URL.revokeObjectURL(p.url));
@@ -162,11 +146,18 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#rDescCount").textContent = "0/500";
     const today = new Date().toISOString().slice(0, 10);
     $("#rDate").value = today; $("#rDate").max = today;
-    if (prefillTitle) { $("#rType").value = "fake-item"; $("#rTitle").value = `Suspicious listing: ${prefillTitle}`.slice(0, 70); }
+    if (prefillTitle) { $("#rType").value = "fake-item"; $("#rTitle").value = `Report: ${prefillTitle}`.slice(0, 70); }
+    $("#rKind").dispatchEvent(new Event("change"));
     dialog.showModal();
     $("#rTitle").focus();
   }
   [$("#heroReportBtn"), $("#panelReportBtn")].forEach((b) => b.addEventListener("click", () => openReport()));
+  $("#rKind").addEventListener("change", () => {
+    const scam = $("#rKind").value === "scam";
+    $("#rType").closest(".two-col").hidden = !scam;
+    if (!scam) $("#rType").value = "other";
+    $("#reportPrivacy").textContent = scam ? "Only a redacted alert can be published after admin review." : "This report stays private between you and the admin team.";
+  });
   $("#rDesc").addEventListener("input", (e) => { $("#rDescCount").textContent = `${e.target.value.length}/500`; });
   $("#rEvidence").addEventListener("change", (e) => {
     [...e.target.files].forEach((f) => { if (f.type.startsWith("image/") && evidence.length < MAX_EVIDENCE) evidence.push({ url: URL.createObjectURL(f), file: f }); });
@@ -183,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const shots = [];
       for (const p of evidence) shots.push(await Store.compressImage(p.file, 900, 0.7));
-      Store.createReport({ type: $("#rType").value, channel: $("#rChannel").value, place: $("#rPlace").value, date: $("#rDate").value, title, desc, ident: $("#rIdentifier").value.trim(), evidence: shots, anonymous: $("#rAnon").checked });
+      await Store.createReport({ kind: $("#rKind").value, listingId: new URLSearchParams(location.search).get("listingId") || null, subjectUserId: new URLSearchParams(location.search).get("subjectUserId") || null, type: $("#rType").value, channel: $("#rChannel").value, place: $("#rPlace").value, date: $("#rDate").value, title, desc, ident: $("#rIdentifier").value.trim(), evidence: shots, anonymous: $("#rAnon").checked });
     } catch (ex) { return fail(ex.message || "Couldn't save the report.", $("#rTitle")); }
     dialog.close();
     setTab("mine");

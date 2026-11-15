@@ -71,14 +71,7 @@ function requirePage() {
   return false;
 }
 
-/* ---------- Log in first ----------
-   Every student page needs an account. Without one, you go to the login page
-   (and come back to the page you wanted after logging in). */
-const OPEN_PAGES = ["login.html", "logout.html", "admin-login.html", "admin.html"]; // admin.html checks admins itself
-(() => {
-  const page = location.pathname.split("/").pop() || "main.html";
-  if (!OPEN_PAGES.includes(page) && !me()) location.replace(loginURL());
-})();
+// Public browsing is allowed. Protected pages and all writes are authorized by Laravel.
 
 /* ---------- Top bar: avatar, menu, unread badges ---------- */
 function renderSessionUI() {

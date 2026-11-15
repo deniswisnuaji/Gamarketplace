@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#doneCard").hidden = false;
     $("#doneTitle").textContent = "You're not logged in";
   }
-  $("#logoutBtn").addEventListener("click", () => {
-    Store.logout();
+  $("#logoutBtn").addEventListener("click", async () => {
+    await Store.logout();
     if ($("#clearData").checked) {
       try { ["gm-sidebar", "gm-listing-draft"].forEach((k) => localStorage.removeItem(k)); sessionStorage.clear(); } catch (e) {}
     }

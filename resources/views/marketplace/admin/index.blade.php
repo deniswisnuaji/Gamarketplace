@@ -35,7 +35,8 @@
         <li><a href="#dashboard" class="nav-link" data-nav="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a></li>
         <li><a href="#review" class="nav-link" data-nav="review"><i data-lucide="clipboard-check"></i><span>Listing Review</span><b class="nav-count" id="navReview">0</b></a></li>
         <li><a href="#listings" class="nav-link" data-nav="listings"><i data-lucide="package"></i><span>All Listings</span></a></li>
-        <li><a href="#reports" class="nav-link" data-nav="reports"><i data-lucide="shield-alert"></i><span>Scam Reports</span><b class="nav-count" id="navReports">0</b></a></li>
+        <li><a href="#requests" class="nav-link" data-nav="requests"><i data-lucide="search"></i><span>Product Requests</span></a></li>
+        <li><a href="#reports" class="nav-link" data-nav="reports"><i data-lucide="shield-alert"></i><span>Reports &amp; Support</span><b class="nav-count" id="navReports">0</b></a></li>
         <li><a href="#users" class="nav-link" data-nav="users"><i data-lucide="users"></i><span>Users</span></a></li>
       </ul>
       <hr class="sidebar__divider" />
@@ -81,7 +82,7 @@
         <div class="kpis">
           <a href="#review" class="kpi kpi--yellow"><i data-lucide="hourglass"></i><div><strong id="kPending">0</strong><span>Listings waiting for review</span></div></a>
           <a href="#listings" class="kpi kpi--green"><i data-lucide="circle-check"></i><div><strong id="kLive">0</strong><span>Live listings</span></div></a>
-          <a href="#reports" class="kpi kpi--red"><i data-lucide="shield-alert"></i><div><strong id="kReports">0</strong><span>Open scam reports</span></div></a>
+          <a href="#reports" class="kpi kpi--red"><i data-lucide="shield-alert"></i><div><strong id="kReports">0</strong><span>Open reports</span></div></a>
           <a href="#users" class="kpi kpi--blue"><i data-lucide="users"></i><div><strong id="kUsers">0</strong><span>Registered users</span></div></a>
         </div>
 
@@ -169,14 +170,19 @@
       </section>
 
       <!-- ============ SCAM REPORTS ============ -->
+      <section class="admin-view" data-view="requests" hidden>
+        <p>Student requests, their category and meet-up point, offers, and current status.</p>
+        <div class="table-wrap"><table class="admin-table"><thead><tr><th>Request</th><th>Student</th><th>Budget</th><th>Meet-up</th><th>Offers</th><th>State</th><th>Action</th></tr></thead><tbody id="requestRows"></tbody></table></div>
+      </section>
+
       <section class="admin-view" data-view="reports" hidden>
         <div class="view-head">
-          <p>Verify real scams so they appear on Scam Watch, or dismiss reports that aren't scams. Reporter names stay private.</p>
+          <p>Review scam reports, website bugs, listing complaints and support requests. Publish only redacted scam alerts; resolve other reports privately.</p>
         </div>
         <div class="status-tabs" role="tablist" aria-label="Report status">
           <button type="button" class="status-tab is-active" role="tab" aria-selected="true" data-rtab="review"><span>Under review (<span data-rcount="review">0</span>)</span></button>
           <button type="button" class="status-tab" role="tab" aria-selected="false" data-rtab="verified"><span>Verified (<span data-rcount="verified">0</span>)</span></button>
-          <button type="button" class="status-tab" role="tab" aria-selected="false" data-rtab="dismissed"><span>Dismissed (<span data-rcount="dismissed">0</span>)</span></button>
+          <button type="button" class="status-tab" role="tab" aria-selected="false" data-rtab="dismissed"><span>Closed (<span data-rcount="dismissed">0</span>)</span></button>
         </div>
         <ul class="report-list" id="reportList"></ul>
         <div class="empty-state" id="reportEmpty" hidden><p><strong>Nothing here.</strong></p></div>

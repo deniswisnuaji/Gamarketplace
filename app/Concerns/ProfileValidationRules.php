@@ -43,6 +43,8 @@ trait ProfileValidationRules
             'required',
             'string',
             'email',
+            'lowercase',
+            'regex:/^[^@]+@(mail\.)?ugm\.ac\.id$/i',
             'max:255',
             $userId === null
                 ? Rule::unique(User::class)

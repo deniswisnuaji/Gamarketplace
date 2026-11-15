@@ -152,12 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#resetBtn").addEventListener("click", clearFilters);
 
   // Wishlist hearts
-  $("#productGrid").addEventListener("click", (e) => {
+  $("#productGrid").addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-wish]");
     if (!btn || !requireLogin("Log in to save items to your wishlist.")) return;
     const l = Store.getListing(btn.dataset.wish);
     if (l.sellerId === me().id) return toast("That's your own item.");
-    const on = Store.toggleSaved(me().id, "listing", l.id);
+    const on = await Store.toggleSaved(me().id, "listing", l.id);
     btn.classList.toggle("is-active", on);
     btn.setAttribute("aria-pressed", String(on));
     toast(on ? "Saved to your wishlist" : "Removed from your wishlist");

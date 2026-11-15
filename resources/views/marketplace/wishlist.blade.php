@@ -4,7 +4,7 @@
 
 @section('title', 'Wishlist — GaMarketplace')
 
-@section('description', 'Items, auctions and requests you saved.')
+@section('description', 'Items and auctions you saved.')
 
 @section('active', '')
 
@@ -24,7 +24,7 @@
       <header class="page-head">
         <div>
           <h1><span class="title-icon title-icon--red"><i data-lucide="heart"></i></span> Wishlist</h1>
-          <p>Items, auctions and requests you saved. We'll tell you when prices drop.</p>
+          <p>Items and auctions you saved. We'll tell you when prices drop.</p>
         </div>
         <div class="page-head__actions">
           <button type="button" class="btn btn--outline" id="clearUnavailable"><i data-lucide="trash-2"></i><span>Remove unavailable</span></button>
@@ -53,7 +53,6 @@
         <button type="button" class="status-tab is-active" role="tab" aria-selected="true" data-tab="all"><span>All (<span data-count="all">0</span>)</span></button>
         <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="item"><i data-lucide="shopping-bag"></i><span>Items (<span data-count="item">0</span>)</span></button>
         <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="auction"><i data-lucide="gavel"></i><span>Auctions (<span data-count="auction">0</span>)</span></button>
-        <button type="button" class="status-tab" role="tab" aria-selected="false" data-tab="request"><i data-lucide="search"></i><span>Requests (<span data-count="request">0</span>)</span></button>
       </div>
 
       <div class="wl-grid" id="wlGrid"></div>

@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
         nego: t === "marketplace" && $("#fNego").checked,
       };
       if (t === "auction") data.auction = { durationDays: Number($("#fDuration").value), buyNow: digits($("#fBuyNow").value) || null };
-      listing = Store.createListing(data);
+      listing = await Store.createListing(data);
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
     } catch (err) {
       btn.classList.remove("is-loading");

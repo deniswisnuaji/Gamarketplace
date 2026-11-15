@@ -1,22 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
   /* ============ WISHLIST ============ */
-  // Items, auctions, swaps and requests the logged-in user saved (Store).
+  // Saved listings from the authenticated server projection.
   if (!requirePage()) return;
   const KIND = {
     marketplace: { label: "Item", icon: "shopping-bag" },
     auction: { label: "Auction", icon: "gavel" },
-    request: { label: "Request", icon: "search" },
   };
   const view = { search: "", sort: "recent", tab: "all" };
 
   // Turn saved references into cards with the item's CURRENT state
   function savedItems() {
     return (me().wishlist || []).map((w) => {
-      if (w.kind === "request") {
-        const r = Store.getRequest(w.id);
-        if (!r) return null;
-        return { w, kind: "request", title: `Looking for: ${r.title}`, price: r.max, sub: "Budget up to", tikum: r.tikum, img: (r.photos || [])[0] || "", href: "looking-for.html", available: !r.found, cta: "I have this" };
-      }
       const l = Store.getListing(w.id);
       if (!l || l.type === "barter") return null; // barter was removed
       const kind = l.type;
@@ -60,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const all = savedItems();
     const base = all.filter((s) => !view.search || s.title.toLowerCase().includes(view.search));
     const tabKind = (s) => (s.kind === "marketplace" ? "item" : s.kind);
-    ["all", "item", "auction", "request"].forEach((t) => ($(`[data-count="${t}"]`).textContent = t === "all" ? base.length : base.filter((s) => tabKind(s) === t).length));
+    ["all", "item", "auction"].forEach((t) => ($(`[data-count="${t}"]`).textContent = t === "all" ? base.length : base.filter((s) => tabKind(s) === t).length));
     const key = {
       recent: (s) => -s.w.at,
       "price-asc": (s) => s.price ?? Infinity,
@@ -86,16 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = e.target.closest("[data-remove]");
     if (!btn) return;
     const [kind, id] = btn.dataset.remove.split(":");
-    btn.closest(".wl-card").classList.add("is-removing");
-    setTimeout(() => {
-      Store.toggleSaved(me().id, kind, id);
+    setTimeout(async () => {
+      await Store.toggleSaved(me().id, kind, id);
       render();
-      toast("Removed from wishlist.", { label: "Undo", run: () => { Store.toggleSaved(me().id, kind, id); render(); } });
+      toast("Removed from wishlist.", { label: "Undo", run: async () => { await Store.toggleSaved(me().id, kind, id); render(); } });
     }, 180);
   });
-  $("#clearUnavailable").addEventListener("click", () => {
+  $("#clearUnavailable").addEventListener("click", async () => {
     const gone = savedItems().filter((s) => !s.available);
-    gone.forEach((s) => Store.toggleSaved(me().id, s.w.kind, s.w.id));
+    for (const s of gone) await Store.toggleSaved(me().id, s.w.kind, s.w.id);
     render();
     toast(`Removed ${gone.length} unavailable item${gone.length === 1 ? "" : "s"}.`);
   });

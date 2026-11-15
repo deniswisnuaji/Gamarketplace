@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   /* ============ MESSAGES ============ */
   // Real chats between accounts (Store). Open a chat from an item: messages.html?to=<userId>&listing=<id>
   if (!requirePage()) return;
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const blocked = o.status !== "active";
     $("#msgInput").disabled = blocked; $("#meetupBtn").disabled = blocked;
     $("#msgInput").placeholder = blocked ? "You can't reply to this account." : "Write a message…";
-    Store.markConversationRead(c.id);
+    Store.markConversationRead(c.id).catch((error) => toast(error.message));
     icons();
   }
   function openConvo(id) {
@@ -128,9 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---- Sending ---- */
-  function send(msg) {
+  async function send(msg) {
     if (!view.activeId) return;
-    try { Store.sendMessage(view.activeId, msg); } catch (e) { return toast(e.message); }
+    await Store.sendMessage(view.activeId, msg);
     renderList();
     renderThread();
   }
@@ -141,28 +141,28 @@ document.addEventListener("DOMContentLoaded", () => {
     input.style.height = Math.min(input.scrollHeight, 140) + "px";
   });
   input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#composer").requestSubmit(); } });
-  $("#composer").addEventListener("submit", (e) => {
+  $("#composer").addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = input.value.trim();
     if (!text) return;
     if (/\b(otp|kode verifikasi|password|pin)\b/i.test(text)) toast("Careful: never share OTP codes, PINs or passwords in chat.");
-    send({ text });
+    await send({ text });
     input.value = ""; input.style.height = "auto";
     $("#sendBtn").disabled = true;
   });
-  $("#quickReplies").addEventListener("click", (e) => { const b = e.target.closest("[data-quick]"); if (b) send({ text: b.dataset.quick }); });
+  $("#quickReplies").addEventListener("click", async (e) => { const b = e.target.closest("[data-quick]"); if (b) await send({ text: b.dataset.quick }); });
   $("#attachInput").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     e.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) return toast("Only photos can be sent.");
-    try { send({ type: "image", src: await Store.compressImage(file, 800, 0.7) }); } catch (err) { toast(err.message); }
+    try { await send({ type: "image", src: await Store.compressImage(file, 800, 0.7) }); } catch (err) { toast(err.message); }
   });
-  $("#messages").addEventListener("click", (e) => {
+  $("#messages").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-meet]");
     if (!b) return;
     const [id, yes] = b.dataset.meet.split(":");
-    Store.respondMeetup(view.activeId, id, yes === "1");
+    await Store.respondMeetup(view.activeId, id, yes === "1");
     renderList(); renderThread();
   });
 
@@ -178,14 +178,14 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#muError").hidden = true;
     muDialog.showModal();
   });
-  $("#meetupForm").addEventListener("submit", (e) => {
+  $("#meetupForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const date = $("#muDate").value, time = $("#muTime").value;
     const fail = (m) => { $("#muError").textContent = m; $("#muError").hidden = false; };
     if (!date || !time) return fail("Choose a date and time.");
     if (new Date(`${date}T${time}`) < new Date()) return fail("That time has already passed.");
     muDialog.close();
-    send({ type: "meetup", place: $("#muPlace").value, date, time, status: "pending" });
+    await send({ type: "meetup", place: $("#muPlace").value, date, time, status: "pending" });
   });
 
   /* ---- List controls ---- */
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderList();
   }));
   $("#backBtn").addEventListener("click", () => { chat.classList.remove("is-thread"); view.activeId = null; history.replaceState(null, "", "messages.html"); renderList(); renderThread(); });
-  $("#reportBtn").addEventListener("click", () => { const c = Store.getConversation(view.activeId); location.href = `scam-watch.html?report=1&about=${encodeURIComponent("chat with " + otherOf(c).name)}`; });
+  $("#reportBtn").addEventListener("click", () => { const c = Store.getConversation(view.activeId); location.href = `scam-watch.html?report=1&kind=user&subjectUserId=${otherOf(c).id}&about=${encodeURIComponent("chat with " + otherOf(c).name)}`; });
 
   /* ---- Start ---- */
   const p = new URLSearchParams(location.search);
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!other || other.id === meId()) { toast("That chat isn't available."); renderThread(); }
     else {
       const ref = p.get("listing") ? { kind: "listing", id: p.get("listing") } : p.get("request") ? { kind: "request", id: p.get("request") } : null;
-      openConvo(Store.openConversation(other.id, ref).id);
+      openConvo((await Store.openConversation(other.id, ref)).id);
     }
   } else if (p.get("c") && Store.getConversation(p.get("c"))) {
     openConvo(p.get("c"));

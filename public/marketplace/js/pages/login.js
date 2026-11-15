@@ -1,6 +1,5 @@
 /* ============ LOGIN / REGISTER ============ */
-// Accounts are stored by Store (js/store.js) in this browser.
-// In Laravel: these forms POST to the auth routes with @csrf and the server checks the password.
+// Authentication uses the Laravel session and server-side password validation.
 document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) lucide.createIcons();
 
@@ -107,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (res.error === "wrong") { showAlert("#loginAlert", "Email or password is incorrect. New here? Create an account first."); $("#loginPassword").select(); return; }
     if (res.error === "admin") { showAlert("#loginAlert", 'This is an admin account. Please use the <a href="admin-login.html">admin sign in</a>.'); return; }
     if (res.error === "suspended") { showAlert("#loginAlert", "This account is suspended. Contact the GaMarketplace admin."); return; }
+    if (res.error) { showAlert("#loginAlert", esc(res.error)); return; }
     toast(`Welcome back, ${res.user.name}!`);
     setTimeout(goNext, 500);
   });
@@ -128,47 +128,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) { $("#registerForm .is-invalid input, #registerForm .is-invalid select")?.focus(); return; }
     const btn = $("#registerSubmit"), label = btn.innerHTML;
     busy(btn, true);
-    const res = await Store.register({ name, email, faculty: $("#regFaculty").value, password: pw });
+    const res = await Store.register({ name, email, faculty: $("#regFaculty").value, password: pw, password_confirmation: $("#regConfirm").value, safety_agreement: $("#regAgree").checked });
     if (res.error) { busy(btn, false, label); setError("regEmail", res.error); return; }
-    await Store.login(email, pw, { remember: true });
+    const signedIn = await Store.login(email, pw, { remember: true });
+    if (signedIn.error) { busy(btn, false, label); showAlert("#loginAlert", esc(signedIn.error)); showTab("login"); return; }
     toast("Account created! Welcome to GaMarketplace.");
     setTimeout(goNext, 700);
   });
 
-  /* ---- Continue with UGM account (for now: user@mail.ugm.ac.id) ---- */
-  $("#ssoBtn").addEventListener("click", async () => {
-    const btn = $("#ssoBtn"), label = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = "<span>Connecting to UGM account…</span>";
-    const res = await Store.loginWithUGM();
-    btn.disabled = false;
-    btn.innerHTML = label;
-    if (res.error) { showAlert("#loginAlert", "This account is suspended. Contact the GaMarketplace admin."); return; }
-    toast(`Welcome, ${res.user.name}!`);
-    // First time: ask for faculty and meet-up point
-    setTimeout(() => { if (!res.user.faculty) location.href = "settings.html?welcome=1#profile"; else goNext(); }, 500);
-  });
-
-  /* ---- Forgot password ---- */
-  const fp = $("#fpDialog");
-  $("#forgotBtn").addEventListener("click", () => {
-    $("#fpEmail").value = $("#loginEmail").value;
-    $("#fpDone").hidden = true;
-    setError("fpEmail", "");
-    $("#fpSubmit").hidden = false;
-    fp.showModal();
-    $("#fpEmail").focus();
-  });
-  $("#fpCancel").addEventListener("click", () => fp.close());
-  $("#fpForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = $("#fpEmail").value.trim();
-    if (!setError("fpEmail", UGM_EMAIL.test(email) ? "" : "Enter your UGM email.")) return;
-    // Sending emails needs the backend. For now, explain honestly.
-    $("#fpDone").querySelector("span").textContent = "Password reset by email needs the backend (Laravel). For now, ask the admin to help you, or create a new account.";
-    $("#fpDone").hidden = false;
-    $("#fpSubmit").hidden = true;
-  });
+  // UGM SSO is not configured; do not impersonate a preset account.
+  $("#ssoBtn").disabled = true;
+  $("#ssoBtn").title = "UGM SSO is not configured. Use your UGM email and password.";
+  $("#forgotBtn").addEventListener("click", () => { location.href = "/forgot-password"; });
 
   if (location.hash === "#register") showTab("register", false);
 });

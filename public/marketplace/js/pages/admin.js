@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   /* ============ ADMIN PANEL ============ */
   // Everything here comes from Store (what students and admins really did).
-  // The role check below runs in the browser only — the backend must enforce admin access.
+  // The server also protects this page and every moderation action.
   const admin = me();
   if (!admin || admin.role !== "admin") { location.replace("admin-login.html?next=" + encodeURIComponent("admin.html" + location.hash)); return; }
 
@@ -9,17 +9,17 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#adminNameMenu").textContent = admin.name;
   $("#adminEmailMenu").textContent = admin.email;
   $("#adminAvatar").textContent = initialsOf(admin.name);
-  function logout() { Store.logout(); location.href = "admin-login.html"; }
+  async function logout() { await Store.logout(); location.href = "admin-login.html"; }
   $("#adminLogout").addEventListener("click", logout);
-  $("#adminLogout2").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+  $("#adminLogout2").addEventListener("click", async (e) => { e.preventDefault(); await logout(); });
 
   /* ---------- Helpers ---------- */
   const STATUS = { approved: "Live", pending: "In review", rejected: "Rejected", hidden: "Hidden" };
   const seller = (l) => Store.getUser(l.sellerId) || { name: "Deleted user", faculty: "", createdAt: 0, status: "deleted" };
   const priceOf = (l) => (l.type === "barter" ? "Barter" : l.type === "auction" ? `From ${rupiah(l.price)}` : rupiah(l.price));
   const students = () => Store.users().filter((u) => u.role === "student");
-  // Reports that mention this user (by email or name in the "phone / account / link" field)
-  const reportsAbout = (u) => Store.reports().filter((r) => r.status !== "dismissed" && r.ident && (r.ident.toLowerCase().includes(u.email.toLowerCase()) || r.ident.toLowerCase().includes(u.name.toLowerCase()))).length;
+  // Explicit relationships identify the reported user; text matches are not evidence.
+  const reportsAbout = (u) => Store.reports().filter((r) => !["dismissed", "resolved"].includes(r.status) && r.subjectUserId === u.id).length;
 
   // Simple warning signs to help moderators (computed from real data)
   function warningsFor(l) {
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------- Routing ---------- */
-  const TITLES = { dashboard: "Dashboard", review: "Listing Review", listings: "All Listings", reports: "Scam Reports", users: "Users" };
+  const TITLES = { dashboard: "Dashboard", review: "Listing Review", listings: "All Listings", requests: "Product Requests", reports: "Reports & Support", users: "Users" };
   function route() {
     const v = TITLES[location.hash.slice(1)] ? location.hash.slice(1) : "dashboard";
     $$(".admin-view").forEach((s) => (s.hidden = s.dataset.view !== v));
@@ -146,9 +146,9 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#bulkBar").hidden = selected.size === 0;
     $("#bulkCount").textContent = selected.size;
   }
-  function leave(id, done) { const c = $(`.rv[data-id="${id}"]`); if (c) { c.classList.add("is-leaving"); setTimeout(done, 220); } else done(); }
-  function approve(ids) {
-    ids.forEach((id) => Store.moderate(id, "approved"));
+  async function leave(id, done) { await done(); }
+  async function approve(ids) {
+    for (const id of ids) await Store.moderate(id, "approved");
     renderAll();
     toast(ids.length > 1 ? `${ids.length} listings approved and now live.` : `Approved: ${Store.getListing(ids[0]).title}`);
   }
@@ -162,13 +162,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   $("#reviewList").addEventListener("click", (e) => {
     const a = e.target.closest("[data-approve]");
-    if (a) { const id = a.dataset.approve; leave(id, () => approve([id])); return; }
+    if (a) { const id = a.dataset.approve; leave(id, async () => await approve([id])); return; }
     const r = e.target.closest("[data-reject]");
     if (r) return openReject(Store.getListing(r.dataset.reject));
     const d = e.target.closest("[data-detail]");
     if (d) openDetail(Store.getListing(d.dataset.detail));
   });
-  $("#bulkApprove").addEventListener("click", () => { const ids = [...selected]; selected.clear(); approve(ids); });
+  $("#bulkApprove").addEventListener("click", async () => { const ids = [...selected]; selected.clear(); await approve(ids); });
   $("#bulkClear").addEventListener("click", () => { selected.clear(); renderReview(); icons(); });
   $("#rvSearch").addEventListener("input", (e) => { rv.search = e.target.value.trim().toLowerCase(); renderReview(); icons(); });
   $("#rvType").addEventListener("change", (e) => { rv.type = e.target.value; renderReview(); icons(); });
@@ -192,8 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (reason === "Other" && note.length < 10) { $("#rjError").textContent = "Write a short note (10+ characters) so the seller knows what to fix."; $("#rjError").hidden = false; return; }
     const l = rejecting;
     rejectDialog.close();
-    leave(l.id, () => {
-      Store.moderate(l.id, "rejected", note ? `${reason}. ${note}` : reason);
+    leave(l.id, async () => {
+      await Store.moderate(l.id, "rejected", note ? `${reason}. ${note}` : reason);
       renderAll();
       toast(`Rejected: ${l.title}. The seller was notified.`);
     });
@@ -220,16 +220,14 @@ document.addEventListener("DOMContentLoaded", () => {
     detailDialog.showModal();
   }
   $("#dtPrice").addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, ""); e.target.value = d ? Number(d).toLocaleString("id-ID") : ""; });
-  $("#detailForm").addEventListener("submit", (e) => {
+  $("#detailForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const title = $("#dtTitleInput").value.trim();
     const price = Number($("#dtPrice").value.replace(/\D/g, ""));
     if (title.length < 5) { $("#dtError").textContent = "Title needs at least 5 characters."; $("#dtError").hidden = false; return; }
     if (editing.type !== "barter" && price < 1000) { $("#dtError").textContent = "Price must be at least Rp 1.000."; $("#dtError").hidden = false; return; }
-    Store.updateListing(editing.id, { title, price: editing.type === "barter" ? 0 : price, category: $("#dtCategory").value, desc: $("#dtDesc").value.trim() });
-    Store.log("edit", title);
-    Store.notify(editing.sellerId, "info", `An admin made a small edit to your listing “${title}”.`, "my-listings.html");
-    Store.save();
+    await Store.updateListing(editing.id, { title, price: editing.type === "barter" ? 0 : price, category: $("#dtCategory").value, desc: $("#dtDesc").value.trim() });
+
     detailDialog.close();
     renderAll();
     toast("Changes saved. The seller was notified.");
@@ -269,33 +267,33 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#alSearch").addEventListener("input", (e) => { al.search = e.target.value.trim().toLowerCase(); renderListings(); icons(); });
   $("#alStatus").addEventListener("change", (e) => { al.status = e.target.value; renderListings(); icons(); });
   $("#alType").addEventListener("change", (e) => { al.type = e.target.value; renderListings(); icons(); });
-  $("#listingBody").addEventListener("change", (e) => {
+  $("#listingBody").addEventListener("change", async (e) => {
     const s = e.target.closest("[data-avail]");
     if (!s) return;
-    const l = Store.updateListing(s.dataset.avail, { availability: s.value });
-    Store.log("edit", `${l.title}: availability → ${s.value}`); Store.save();
+    const l = await Store.updateListing(s.dataset.avail, { availability: s.value });
+
     toast(`Availability updated: ${s.value}.`);
   });
-  $("#listingBody").addEventListener("click", (e) => {
+  $("#listingBody").addEventListener("click", async (e) => {
     if (e.target.closest("[data-goreview]")) { location.hash = "review"; return; }
     const d = e.target.closest("[data-detail]");
     if (d) return openDetail(Store.getListing(d.dataset.detail));
     const h = e.target.closest("[data-hide]");
     if (h) {
       const l = Store.getListing(h.dataset.hide);
-      return confirmAction({ title: "Hide this listing?", text: `“${l.title}” won't be visible to students until you show it again.`, ok: "Hide listing", reason: true }, (why) => {
-        Store.moderate(l.id, "hidden", why); renderAll(); toast("Listing hidden. The seller was notified.");
+      return confirmAction({ title: "Hide this listing?", text: `“${l.title}” won't be visible to students until you show it again.`, ok: "Hide listing", reason: true }, async (why) => {
+        await Store.moderate(l.id, "hidden", why); renderAll(); toast("Listing hidden. The seller was notified.");
       });
     }
     const u = e.target.closest("[data-unhide]");
-    if (u) { const l = Store.getListing(u.dataset.unhide); Store.moderate(l.id, "approved"); renderAll(); toast("Listing is visible again."); return; }
+    if (u) { const l = Store.getListing(u.dataset.unhide); await Store.moderate(l.id, "approved"); renderAll(); toast("Listing is visible again."); return; }
     const del = e.target.closest("[data-delete]");
     if (del) {
       const l = Store.getListing(del.dataset.delete);
-      confirmAction({ title: "Delete this listing?", text: `“${l.title}” will be removed permanently. This can't be undone.`, ok: "Delete", reason: true }, (why) => {
-        Store.notify(l.sellerId, "rejected", `Your listing “${l.title}” was removed by an admin: ${why}`, "my-listings.html");
-        Store.log("delete", `${l.title} — ${why}`);
-        Store.deleteListing(l.id);
+      confirmAction({ title: "Delete this listing?", text: `“${l.title}” will be removed from the marketplace. Its history will be retained.`, ok: "Delete", reason: true }, async (why) => {
+
+
+        await Store.deleteListing(l.id, why);
         renderAll();
         toast("Listing deleted.");
       });
@@ -314,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div>
           <div class="rv__tags">
             <span class="chip-t ${r.risk === "high" ? "chip-t--warn" : ""}">${r.risk[0].toUpperCase() + r.risk.slice(1)} risk</span>
+            <span class="chip-t">${esc(({ scam: "Scam", bug: "Website bug", listing: "Listing complaint", user: "User complaint", other: "Support" })[r.kind] || "Scam")}</span>
             <span class="chip-t">${REPORT_TYPE[r.type] || esc(r.type)}</span>
             <span class="chip-t"><i data-lucide="map-pin"></i>${esc(r.place)}</span>
             <span class="chip-t"><i data-lucide="paperclip"></i>${(r.evidence || []).length} evidence</span>
@@ -323,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <p class="rp__text">${esc(r.desc)}</p>
           ${r.ident ? `<span class="rp__ident"><i data-lucide="fingerprint"></i>${esc(r.ident)}</span>` : ""}
           ${(r.evidence || []).length ? `<div class="rp__evidence">${r.evidence.map((src) => `<a href="${src}" target="_blank" rel="noopener"><img src="${src}" alt="Evidence screenshot" /></a>`).join("")}</div>` : ""}
-          <p class="hint">Reported ${timeAgo(r.createdAt)} · ${r.anonymous ? "reporter hidden from students" : "reporter: " + esc(Store.getUser(r.reporterId)?.name || "student")}${r.date ? " · happened on " + esc(r.date) : ""}</p>
+          <p class="hint">Reported ${timeAgo(r.createdAt)} · ${"reporter: " + esc(Store.getUser(r.reporterId)?.name || "student")}${r.anonymous ? " · identity hidden from students" : ""}${r.date ? " · happened on " + esc(r.date) : ""}</p>
         </div>
         <div class="rp__actions">
           ${r.status === "review" ? `
@@ -331,8 +330,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <select class="mini-select" id="risk-${r.id}" data-risk="${r.id}">
               ${["high", "medium", "low"].map((k) => `<option value="${k}" ${r.risk === k ? "selected" : ""}>${k[0].toUpperCase() + k.slice(1)}</option>`).join("")}
             </select>
-            <button type="button" class="btn btn--approve" data-verify="${r.id}"><i data-lucide="badge-check"></i><span>Verify &amp; publish</span></button>
-            <button type="button" class="btn btn--outline" data-dismiss="${r.id}"><i data-lucide="x"></i><span>Dismiss</span></button>`
+            ${r.kind === "scam" ? `<label for="public-title-${r.id}">Public alert title</label><input class="text-input" id="public-title-${r.id}" maxlength="70" value="${esc(r.publicTitle || 'Verified marketplace safety warning')}" /><label for="public-summary-${r.id}">Redacted public summary</label><textarea class="text-input" id="public-summary-${r.id}" maxlength="500" placeholder="Describe the scam pattern without personal details">${esc(r.publicSummary || '')}</textarea><button type="button" class="btn btn--approve" data-verify="${r.id}"><i data-lucide="badge-check"></i><span>Verify &amp; publish</span></button>` : ""}
+            <button type="button" class="btn btn--outline" data-dismiss="${r.id}"><i data-lucide="x"></i><span>${r.kind === "scam" ? "Dismiss" : "Resolve / close"}</span></button>`
           : `<button type="button" class="btn btn--outline" data-reopen="${r.id}"><i data-lucide="rotate-ccw"></i><span>Move back to review</span></button>`}
         </div>
       </li>`).join("");
@@ -343,16 +342,16 @@ document.addEventListener("DOMContentLoaded", () => {
     $$("[data-rtab]").forEach((x) => { x.classList.toggle("is-active", x === t); x.setAttribute("aria-selected", String(x === t)); });
     renderReports(); icons();
   }));
-  $("#reportList").addEventListener("change", (e) => { const s = e.target.closest("[data-risk]"); if (s) Store.setReportRisk(s.dataset.risk, s.value); });
-  $("#reportList").addEventListener("click", (e) => {
+  $("#reportList").addEventListener("change", async (e) => { const s = e.target.closest("[data-risk]"); if (s) await Store.setReportRisk(s.dataset.risk, s.value); });
+  $("#reportList").addEventListener("click", async (e) => {
     const v = e.target.closest("[data-verify]");
-    if (v) { Store.setReportStatus(v.dataset.verify, "verified"); renderAll(); toast("Verified. It now shows on Scam Watch."); return; }
+    if (v) { const summary = $("#public-summary-" + v.dataset.verify).value.trim(); if (summary.length < 20) return toast("Write a redacted public summary of at least 20 characters."); await Store.setReportStatus(v.dataset.verify, "verified", "", { publicTitle: $("#public-title-" + v.dataset.verify).value.trim(), publicSummary: summary }); renderAll(); toast("Verified. It now shows on Scam Watch."); return; }
     const d = e.target.closest("[data-dismiss]");
-    if (d) return confirmAction({ title: "Dismiss this report?", text: "Use this when it isn't a scam or there's not enough proof.", ok: "Dismiss", reason: true }, (why) => {
-      Store.setReportStatus(d.dataset.dismiss, "dismissed", why); renderAll(); toast("Report dismissed.");
+    if (d) return confirmAction({ title: "Close this report?", text: "Record the resolution or reason. The reporter can see this note.", ok: "Close report", reason: true }, async (why) => {
+      await Store.setReportStatus(d.dataset.dismiss, "dismissed", why); renderAll(); toast("Report closed.");
     });
     const o = e.target.closest("[data-reopen]");
-    if (o) { Store.setReportStatus(o.dataset.reopen, "review"); renderAll(); }
+    if (o) { await Store.setReportStatus(o.dataset.reopen, "review"); renderAll(); }
   });
 
   /* ---------- Users ---------- */
@@ -382,16 +381,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   $("#usSearch").addEventListener("input", (e) => { us.search = e.target.value.trim().toLowerCase(); renderUsers(); icons(); });
   $("#usStatus").addEventListener("change", (e) => { us.status = e.target.value; renderUsers(); icons(); });
-  $("#userBody").addEventListener("click", (e) => {
+  $("#userBody").addEventListener("click", async (e) => {
     const s = e.target.closest("[data-suspend]");
     if (s) {
       const u = Store.getUser(s.dataset.suspend);
-      return confirmAction({ title: `Suspend ${u.name}?`, text: "They won't be able to log in, chat or list items. Their live listings will be hidden.", ok: "Suspend user", reason: true }, (why) => {
-        Store.setUserStatus(u.id, "suspended", why); renderAll(); toast(`${u.name} suspended.`);
+      return confirmAction({ title: `Suspend ${u.name}?`, text: "They won't be able to log in, chat or list items. Their live listings will be hidden.", ok: "Suspend user", reason: true }, async (why) => {
+        await Store.setUserStatus(u.id, "suspended", why); renderAll(); toast(`${u.name} suspended.`);
       });
     }
     const r = e.target.closest("[data-unsuspend]");
-    if (r) { const u = Store.getUser(r.dataset.unsuspend); Store.setUserStatus(u.id, "active"); renderAll(); toast(`${u.name} restored.`); }
+    if (r) { const u = Store.getUser(r.dataset.unsuspend); await Store.setUserStatus(u.id, "active"); renderAll(); toast(`${u.name} restored.`); }
   });
 
   /* ---------- Confirm with reason ---------- */
@@ -408,17 +407,39 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmDialog.showModal();
     if (reason) $("#cfReason").focus();
   }
-  $("#confirmForm").addEventListener("submit", (e) => {
+  $("#confirmForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const why = $("#cfReason").value.trim();
     if (!$("#cfReasonWrap").hidden && why.length < 5) { $("#cfError").textContent = "Write a short reason (5+ characters)."; $("#cfError").hidden = false; return; }
     confirmDialog.close();
-    onConfirm && onConfirm(why || "—");
+    if (onConfirm) await onConfirm(why || "—");
+  });
+
+
+  function renderRequests() {
+    const requests = Store.requests();
+    $("#requestRows").innerHTML = requests.length ? requests.map((r) => `<tr>
+      <td data-label="Request"><strong>${esc(r.title)}</strong><br /><small>${esc(CATEGORY_LABEL[r.category] || r.category)}</small></td>
+      <td data-label="Student">${esc(Store.getUser(r.userId)?.name || "Student")}</td>
+      <td data-label="Budget">${rupiah(r.min)} – ${rupiah(r.max)}</td>
+      <td data-label="Meet-up">${esc(r.tikum)}</td>
+      <td data-label="Offers">${r.offerCount ?? r.offers.length}</td>
+      <td data-label="State">${r.found ? "Found" : r.neededBy < Date.now() ? "Expired" : "Open"}</td>
+      <td data-label="Action"><button type="button" class="btn btn--outline btn--sm" data-remove-request="${r.id}">Remove</button></td>
+    </tr>`).join("") : '<tr><td colspan="7">No product requests yet.</td></tr>';
+  }
+  $("#requestRows").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-remove-request]");
+    if (!button) return;
+    const request = Store.getRequest(button.dataset.removeRequest);
+    confirmAction({title: "Remove this request?", text: request.title, ok: "Remove request", reason: true}, async (reason) => {
+      await Store.deleteRequest(request.id, reason); renderAll(); toast("Request removed.");
+    });
   });
 
   /* ---------- Render ---------- */
-  function renderAll() { renderDashboard(); renderReview(); renderListings(); renderReports(); renderUsers(); icons(); }
+  function renderAll() { renderDashboard(); renderReview(); renderListings(); renderRequests(); renderReports(); renderUsers(); icons(); }
   Store.onChange(renderAll);           // new submissions from another tab show up right away
-  setInterval(renderAll, 60000);
+  setInterval(() => { if (!document.activeElement?.matches("input, textarea, select") && !document.querySelector("dialog[open]")) renderAll(); }, 60000);
   route();
 });

@@ -1,45 +1,41 @@
 <?php
 
+use App\Http\Controllers\Marketplace\AuthController;
+use App\Http\Controllers\Marketplace\CoreController;
+use App\Http\Controllers\Marketplace\InteractionController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Gamarketplace Blade pages (frontend)
-|--------------------------------------------------------------------------
-| Preview routes for the converted HTML designs, under /gm/.
-| The URLs keep the ".html" names on purpose: the page JavaScript links to
-| e.g. "item.html?id=…" and "login.html", and those relative links keep
-| working without rewriting every script.
-|
-| Data is still saved in the browser by public/marketplace/js/store.js.
-| These routes do NOT use Fortify or the database yet. The backend team
-| will replace them with controllers + real auth (see the PR description).
-*/
-
 Route::redirect('/gm', '/gm/main.html');
-
 Route::prefix('gm')->name('gm.')->group(function () {
-    // Student pages
-    Route::view('main.html', 'marketplace.home')->name('home');
-    Route::view('marketplace.html', 'marketplace.browse')->name('browse');
-    Route::view('item.html', 'marketplace.show')->name('show');
-    Route::view('bidding.html', 'marketplace.bidding')->name('bidding');
-    Route::view('looking-for.html', 'marketplace.looking-for')->name('looking-for');
-    Route::view('scam-watch.html', 'marketplace.scam-watch')->name('scam-watch');
-    Route::view('list-item.html', 'marketplace.create')->name('create');
-    Route::view('profile.html', 'marketplace.profile')->name('profile');
-    Route::view('my-listings.html', 'marketplace.mine')->name('mine');
-    Route::view('wishlist.html', 'marketplace.wishlist')->name('wishlist');
-    Route::view('settings.html', 'marketplace.settings')->name('settings');
-    Route::view('messages.html', 'marketplace.messages')->name('messages');
-    Route::view('notifications.html', 'marketplace.notifications')->name('notifications');
-    Route::view('meetup-map.html', 'marketplace.meetup-map')->name('meetup-map');
-
-    // Sign in / out (design preview — not Fortify yet)
-    Route::view('login.html', 'marketplace.login')->name('login');
-    Route::view('logout.html', 'marketplace.logout')->name('logout');
-
-    // Admin (the real admin check must be added by the backend: auth + admin role middleware)
+    foreach (['main' => 'home', 'marketplace' => 'browse', 'item' => 'show', 'bidding' => 'bidding', 'looking-for' => 'looking-for', 'scam-watch' => 'scam-watch', 'profile' => 'profile', 'meetup-map' => 'meetup-map', 'login' => 'login', 'logout' => 'logout'] as $url => $view) {
+        Route::view($url.'.html', 'marketplace.'.$view)->name($view);
+    }
     Route::view('admin-login.html', 'marketplace.admin.login')->name('admin.login');
-    Route::view('admin.html', 'marketplace.admin.index')->name('admin');
+    Route::middleware('auth')->group(function () {
+        foreach (['list-item' => 'create', 'my-listings' => 'mine', 'wishlist' => 'wishlist', 'settings' => 'settings', 'messages' => 'messages', 'notifications' => 'notifications'] as $url => $view) {
+            Route::view($url.'.html', 'marketplace.'.$view)->name($view);
+        }
+        Route::view('admin.html', 'marketplace.admin.index')->middleware('gm.admin')->name('admin');
+    });
+    Route::prefix('api')->name('api.')->group(function () {
+        Route::get('state', [AuthController::class, 'state'])->name('state')->middleware('throttle:120,1');
+        Route::post('login', [AuthController::class, 'login'])->name('login')->middleware('throttle:login');
+        Route::post('register', [AuthController::class, 'register'])->name('register')->middleware('throttle:5,1');
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::middleware(['auth', 'throttle:120,1'])->group(function () {
+            Route::post('profile', [AuthController::class, 'profile'])->name('profile');
+            Route::post('password', [AuthController::class, 'password'])->name('password')->middleware('throttle:6,1');
+            foreach (['createListing', 'updateListing', 'deleteListing', 'addView', 'createRequest', 'offerOnRequest', 'withdrawRequestOffer', 'setRequestFound', 'deleteRequest', 'createReport', 'toggleSeen'] as $action) {
+                Route::post('action/'.$action, [CoreController::class, $action])->name('action.'.$action);
+            }
+            foreach (['moderate', 'setReportStatus', 'setReportRisk', 'setUserStatus'] as $action) {
+                Route::post('action/'.$action, [CoreController::class, $action])->name('action.'.$action)->middleware('gm.admin');
+            }
+            foreach (['placeBid', 'buyNow', 'toggleSaved', 'openConversation', 'sendMessage', 'markConversationRead', 'respondMeetup', 'markNotification', 'markAllNotifications', 'deleteNotification'] as $action) {
+                Route::post('action/'.$action, [InteractionController::class, $action])->name('action.'.$action);
+            }
+            Route::get('reports/evidence/{evidence}', [CoreController::class, 'evidence'])->name('report.evidence')->whereNumber('evidence');
+            Route::get('messages/{message}/image', [InteractionController::class, 'messageImage'])->name('message.image')->whereNumber('message');
+        });
+    });
 });

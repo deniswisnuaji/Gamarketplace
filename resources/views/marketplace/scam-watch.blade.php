@@ -35,7 +35,7 @@
           <p class="hero__subtitle">See scam reports from the UGM community, check before you pay, and warn others when something feels off.</p>
           <div class="hero__actions">
             <button type="button" class="btn btn--danger" id="heroReportBtn">
-              <i data-lucide="flag"></i><span>Report a Scam</span>
+              <i data-lucide="flag"></i><span>Submit a report</span>
             </button>
             <a href="#checklist" class="btn btn--outline">
               <i data-lucide="list-checks"></i><span>Safety Checklist</span>
@@ -165,14 +165,8 @@
       <!-- Check before you pay -->
       <section class="panel checker">
         <h2 class="panel__title"><span class="title-icon title-icon--red"><i data-lucide="search-check"></i></span> Check Before You Pay</h2>
-        <p class="panel__sub">Paste a phone number, bank account, or link to see if it has been reported.</p>
-        <form class="checker__form" id="checkForm">
-          <label for="checkInput" class="sr-only">Phone number, account, or link</label>
-          <input type="text" id="checkInput" class="text-input" placeholder="e.g. 0812-0000-1111 or a link" autocomplete="off" />
-          <button type="submit" class="btn btn--primary"><span>Check</span></button>
-        </form>
-        <div class="checker__result" id="checkResult" aria-live="polite" hidden></div>
-        <p class="checker__note">Checks against scam reports verified by GaMarketplace admins.</p>
+        <p class="panel__sub">Read reviewed safety alerts and inspect the item before paying. A lack of reports does not prove a seller is safe.</p>
+        <p class="checker__note">Phone numbers, account details and evidence remain private. Send concerns to the admin team using “Submit a report”.</p>
       </section>
 
       <!-- Checklist -->
@@ -202,7 +196,7 @@
           <li>Report it here so other students are warned.</li>
         </ol>
         <button type="button" class="btn btn--danger btn--block" id="panelReportBtn">
-          <i data-lucide="flag"></i><span>Report a Scam</span>
+          <i data-lucide="flag"></i><span>Submit a report</span>
         </button>
         <p class="help__emergency"><i data-lucide="phone"></i> In danger right now? Call the police at <a href="tel:110"><strong>110</strong></a>.</p>
       </section>
@@ -219,12 +213,21 @@
       </button>
 
       <header>
-        <h2 id="reportTitle">Report a Scam</h2>
-        <p class="form-dialog__sub">Admins review every report before it's shown as verified. Don't post personal info like full names or home addresses.</p>
+        <h2 id="reportTitle">Report a problem</h2>
+        <p class="form-dialog__sub">Bug reports and complaints are private. Only reviewed, redacted scam alerts may be published. Keep personal details in the private identifier field or evidence.</p>
       </header>
 
       <fieldset class="bx-form">
         <legend class="sr-only">Report details</legend>
+        <label class="bx-label" for="rKind">Report category</label>
+        <select id="rKind" class="select">
+          <option value="scam">Scam or suspicious activity</option>
+          <option value="bug">Website bug</option>
+          <option value="listing">Report a listing</option>
+          <option value="user">Report a user</option>
+          <option value="other">General support</option>
+        </select>
+        <p class="hint" id="reportPrivacy">Your report goes to the admin review queue.</p>
 
         <div class="two-col">
           <div>

@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const live = listings.filter((l) => Store.isPublic(l) && l.availability !== "sold");
     $("#pAvatar").innerHTML = u.photo ? `<img src="${u.photo}" alt="" />` : esc(initialsOf(u.name));
     $("#pName").textContent = u.name;
-    $("#pUsername").textContent = u.username || u.email.split("@")[0];
+    $("#pUsername").textContent = u.username || "UGM student";
     $("#pBio").textContent = u.bio || (isSelf ? "No bio yet. Add one in Settings." : "No bio yet.");
     $("#pFaculty").textContent = u.faculty;
     $("#pFacultyRow").hidden = u.showFaculty === false && !isSelf;

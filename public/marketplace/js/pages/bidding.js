@@ -193,22 +193,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!buy.hidden) buy.textContent = `Buy Now ${rupiah(a.auction.buyNow)}`;
   }
 
-  $("#bidForm").addEventListener("submit", (e) => {
+  $("#bidForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!requireLogin("Log in to place a bid.")) return;
     const a = Store.getListing(openId);
-    const res = Store.placeBid(a.id, Number($("#bidAmount").value));
+    const res = await Store.placeBid(a.id, Number($("#bidAmount").value));
     if (res.error) { $("#bidError").textContent = res.error; $("#bidError").hidden = false; return; }
     dialog.close();
     render();
     toast(`Bid placed: ${rupiah(Number($("#bidAmount").value))} on ${a.title}.`);
   });
   $("#quickBids").addEventListener("click", (e) => { const b = e.target.closest("[data-quick]"); if (b) { $("#bidAmount").value = b.dataset.quick; $("#bidError").hidden = true; } });
-  $("#buyNowBtn").addEventListener("click", () => {
+  $("#buyNowBtn").addEventListener("click", async () => {
     if (!requireLogin("Log in to buy.")) return;
     const a = Store.getListing(openId);
     if (!confirm(`Buy ${a.title} now for ${rupiah(a.auction.buyNow)}? This ends the auction.`)) return;
-    const res = Store.buyNow(a.id);
+    const res = await Store.buyNow(a.id);
     if (res.error) return toast(res.error);
     dialog.close();
     render();
@@ -264,13 +264,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.matchMedia("(max-width: 760px)").matches) { $("#filterToggle").setAttribute("aria-expanded", "false"); $("#filterSelects").hidden = true; }
   $$(".status-tab").forEach((t) => t.addEventListener("click", () => { setTab(t.dataset.tab); render(); }));
 
-  $("#bidGrid").addEventListener("click", (e) => {
+  $("#bidGrid").addEventListener("click", async (e) => {
     const w = e.target.closest("[data-watch]");
     if (w) {
       if (!requireLogin("Log in to watch auctions.")) return;
       const a = Store.getListing(w.dataset.watch);
       if (a.sellerId === me().id) return toast("That's your own auction.");
-      const on = Store.toggleSaved(me().id, "listing", a.id);
+      const on = await Store.toggleSaved(me().id, "listing", a.id);
       w.classList.toggle("is-active", on); w.setAttribute("aria-pressed", String(on));
       renderStats();
       toast(on ? "Added to your watchlist" : "Removed from your watchlist");

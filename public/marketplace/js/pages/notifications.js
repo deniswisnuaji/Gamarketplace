@@ -42,20 +42,20 @@ document.addEventListener("DOMContentLoaded", () => {
     $$(".status-tab").forEach((x) => { x.classList.toggle("is-active", x === t); x.setAttribute("aria-selected", String(x === t)); });
     render();
   }));
-  $("#notifGroups").addEventListener("click", (e) => {
+  $("#notifGroups").addEventListener("click", async (e) => {
     const open = e.target.closest("[data-open]");
-    if (open) { Store.markNotification(open.dataset.open, true); return; } // the link continues
+    if (open) { e.preventDefault(); await Store.markNotification(open.dataset.open, true); location.href = open.href; return; }
     const read = e.target.closest("[data-read]");
-    if (read) { Store.markNotification(read.dataset.read, true); render(); return; }
+    if (read) { await Store.markNotification(read.dataset.read, true); render(); return; }
     const del = e.target.closest("[data-del]");
-    if (del) { Store.deleteNotification(del.dataset.del); render(); toast("Notification deleted."); }
+    if (del) { await Store.deleteNotification(del.dataset.del); render(); toast("Notification deleted."); }
   });
-  $("#markAllBtn").addEventListener("click", () => { Store.markAllNotifications(me().id); render(); toast("All notifications marked as read."); });
+  $("#markAllBtn").addEventListener("click", async () => { await Store.markAllNotifications(me().id); render(); toast("All notifications marked as read."); });
 
   // Quick settings (saved on the user, same as Settings → Notifications)
   $$("[data-pref]").forEach((cb) => {
     cb.checked = (me().prefs || {})[cb.dataset.pref] !== false;
-    cb.addEventListener("change", () => { Store.updateUser(me().id, { prefs: { ...(me().prefs || {}), [cb.dataset.pref]: cb.checked } }); toast("Saved."); });
+    cb.addEventListener("change", async () => { await Store.updateUser(me().id, { prefs: { ...(me().prefs || {}), [cb.dataset.pref]: cb.checked } }); toast("Saved."); });
   });
 
   render();

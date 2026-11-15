@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const s = SPOTS.find((x) => x.id === view.active);
     if (e.target.closest("#setDefault")) {
       if (!requireLogin("Log in to save your default meet-up point.")) return;
-      Store.updateUser(me().id, { tikum: s.short });
+      await Store.updateUser(me().id, { tikum: s.short });
       renderAll();
       toast(`${s.short} is now your default meet-up point.`);
     }

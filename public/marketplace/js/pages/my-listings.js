@@ -121,32 +121,28 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
   }));
 
-  $("#mlList").addEventListener("change", (e) => {
+  $("#mlList").addEventListener("change", async (e) => {
     const sel = e.target.closest("[data-avail]");
     if (!sel) return;
     const l = Store.getListing(sel.dataset.avail);
     if (sel.value === "sold" && !confirm(`Mark "${l.title}" as sold? It will disappear from the marketplace.`)) { sel.value = l.availability; return; }
-    Store.updateListing(l.id, { availability: sel.value });
+    await Store.updateListing(l.id, { availability: sel.value });
     render();
     toast(sel.value === "sold" ? "Marked as sold. Nice deal! 🎉" : `Marked as ${sel.value}.`);
   });
 
-  $("#mlList").addEventListener("click", (e) => {
+  $("#mlList").addEventListener("click", async (e) => {
     const del = e.target.closest("[data-delete]");
     if (del) {
       const l = Store.getListing(del.dataset.delete);
       if (!confirm(`Delete “${l.title}”? This can't be undone.`)) return;
-      Store.deleteListing(l.id);
+      await Store.deleteListing(l.id);
       render();
       toast(`Deleted “${l.title}”.`);
       return;
     }
     const relist = e.target.closest("[data-relist]");
-    if (relist) { Store.updateListing(relist.dataset.relist, { availability: "available" }); render(); toast("Listed again."); return; }
-    const acc = e.target.closest("[data-accept]");
-    if (acc) { const [lid, oid] = acc.dataset.accept.split(":"); Store.respondBarterOffer(lid, oid, true); render(); toast("Offer accepted. Chat them to set the meet-up."); return; }
-    const dec = e.target.closest("[data-decline]");
-    if (dec) { const [lid, oid] = dec.dataset.decline.split(":"); Store.respondBarterOffer(lid, oid, false); render(); toast("Offer declined."); return; }
+    if (relist) { await Store.updateListing(relist.dataset.relist, { availability: "available" }); render(); toast("Listed again."); return; }
     const edit = e.target.closest("[data-edit]");
     if (edit) openEdit(Store.getListing(edit.dataset.edit));
   });
@@ -171,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   $("#ePrice").addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, ""); e.target.value = d ? Number(d).toLocaleString("id-ID") : ""; });
 
-  $("#editForm").addEventListener("submit", (e) => {
+  $("#editForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const err = $("#eError");
     const title = $("#eTitle").value.trim();
@@ -181,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const desc = $("#eDesc").value.trim();
     const contentChanged = title !== editing.title || desc !== (editing.desc || "");
     const resubmit = editing.moderation === "rejected" || (contentChanged && editing.moderation === "approved");
-    Store.updateListing(editing.id, { title, price: editing.type === "barter" ? 0 : price, condition: $("#eCondition").value, tikum: $("#eTikum").value, desc }, { resubmit });
+    await Store.updateListing(editing.id, { title, price: editing.type === "barter" ? 0 : price, condition: $("#eCondition").value, tikum: $("#eTikum").value, desc }, { resubmit });
     dialog.close();
     render();
     toast(resubmit ? "Saved and sent to admin for review." : "Changes saved.");

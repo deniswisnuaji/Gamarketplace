@@ -1,5 +1,5 @@
 /* ============ ADMIN LOGIN ============ */
-// Checks the admin account saved by Store. Real admin access must be enforced by the backend.
+// The server verifies credentials, admin permissions, and login rate limits.
 document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) lucide.createIcons();
   const LOCK_KEY = "gm-admin-lock";
@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   ["adminEmail", "adminPassword"].forEach((id) => document.getElementById(id).addEventListener("input", () => setError(id, "")));
 
-  $("#fillDemo").addEventListener("click", () => { $("#adminEmail").value = "admin@ugm.ac.id"; $("#adminPassword").value = "Admin2026"; $("#adminSubmit").focus(); });
   $("#eyeBtn").addEventListener("click", (e) => {
     const input = $("#adminPassword"), show = input.type === "password";
     input.type = show ? "text" : "password";
@@ -55,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pw = $("#adminPassword").value;
     alertMsg("");
     const ok = [
-      setError("adminEmail", !email ? "Enter your admin email." : /^[^@\s]+@([a-z0-9-]+\.)*ugm\.ac\.id$/.test(email) ? "" : "Use a UGM email address."),
+      setError("adminEmail", !email ? "Enter your admin email." : /^[^@\s]+@(mail\.)?ugm\.ac\.id$/.test(email) ? "" : "Use a UGM email address."),
       setError("adminPassword", pw ? "" : "Enter your password."),
     ].every(Boolean);
     if (!ok) { $(".is-invalid input")?.focus(); return; }
@@ -77,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         runLockTimer();
         return;
       }
-      alertMsg(res.error === "suspended" ? "This account is suspended." : `Email or password is incorrect, or this account has no admin access. (${MAX_TRIES - tries} tries left)`);
+      alertMsg(res.error === "suspended" ? "This account is suspended." : esc(res.error));
       $("#adminPassword").select();
       return;
     }

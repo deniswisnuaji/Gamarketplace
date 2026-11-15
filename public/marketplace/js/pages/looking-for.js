@@ -38,12 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function inTab(r, tab) {
     if (tab === "urgent") return isUrgent(r);
-    if (tab === "nooffers") return !r.found && r.offers.length === 0;
+    if (tab === "nooffers") return !r.found && (r.offerCount ?? r.offers.length) === 0;
     if (tab === "mine") return isMine(r);
     return !r.found || isMine(r);
   }
   function sortList(list) {
-    const key = { newest: (r) => -r.createdAt, soonest: (r) => r.neededBy, budget: (r) => -r.max, fewest: (r) => r.offers.length }[view.sort];
+    const key = { newest: (r) => -r.createdAt, soonest: (r) => r.neededBy, budget: (r) => -r.max, fewest: (r) => (r.offerCount ?? r.offers.length) }[view.sort];
     return list.sort((a, b) => (!!a.found - !!b.found) || key(a) - key(b));
   }
 
@@ -51,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const owner = Store.getUser(r.userId);
     const u = me();
     const offered = myOfferOn(r);
-    const saved = u && Store.isSaved(u.id, "request", r.id);
     const mine = isMine(r);
     const tags = [
       `<span class="cat-tag cat-tag--${r.category}">${CATEGORY_LABEL[r.category]}</span>`,
@@ -66,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<button type="button" class="btn btn--outline" data-unfound="${r.id}"><i data-lucide="rotate-ccw"></i><span>Open again</span></button>
            <button type="button" class="btn btn--outline" data-delete="${r.id}" aria-label="Delete request"><i data-lucide="trash-2"></i></button>`
         : `<button type="button" class="btn btn--outline" data-found="${r.id}"><i data-lucide="circle-check"></i><span>Mark as Found</span></button>
-           <button type="button" class="btn btn--primary" data-offer="${r.id}"><i data-lucide="inbox"></i><span>Offers (${r.offers.length})</span></button>`;
+           <button type="button" class="btn btn--primary" data-offer="${r.id}"><i data-lucide="inbox"></i><span>Offers (${(r.offerCount ?? r.offers.length)})</span></button>`;
     } else if (r.found) {
       actions = '<button type="button" class="btn btn--outline" disabled><span>No longer needed</span></button>';
     } else {
@@ -78,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <article class="req-card${mine ? " is-mine" : ""}${r.found ? " is-found" : ""}" data-id="${r.id}">
         <div class="req-card__top">
           ${tags}
-          ${mine ? "" : `<button class="wish-btn${saved ? " is-active" : ""}" type="button" data-save="${r.id}" aria-label="Save request ${esc(r.title)}" aria-pressed="${!!saved}"><i data-lucide="bookmark"></i></button>`}
         </div>
         ${r.photos && r.photos.length ? `
         <button type="button" class="req-photo" data-photos="${r.id}" aria-label="View reference photo for ${esc(r.title)}">
@@ -92,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="req-card__meta">
           <span class="requester">${avatarHTML(owner, 22)}${esc(owner?.name || "Student")}</span>
           <span><i data-lucide="calendar"></i>${neededText(r)}</span>
-          <span class="offers-count${r.offers.length ? "" : " is-zero"}">${r.offers.length} offer${r.offers.length === 1 ? "" : "s"}</span>
+          <span class="offers-count${(r.offerCount ?? r.offers.length) ? "" : " is-zero"}">${(r.offerCount ?? r.offers.length)} offer${(r.offerCount ?? r.offers.length) === 1 ? "" : "s"}</span>
         </div>
         <div class="req-card__meta">
           <span><i data-lucide="shield-check"></i>${COND_LABEL[r.condition]}</span>
@@ -121,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const u = me();
     const mine = u ? Store.requests().filter((r) => r.userId === u.id) : [];
     $("#statActive").textContent = mine.filter((r) => !r.found).length;
-    $("#statOffers").textContent = mine.filter((r) => !r.found).reduce((s, r) => s + r.offers.length, 0);
+    $("#statOffers").textContent = mine.filter((r) => !r.found).reduce((s, r) => s + (r.offerCount ?? r.offers.length), 0);
     $("#statFound").textContent = mine.filter((r) => r.found).length;
   }
   // Most common words in open requests from the last 7 days
@@ -167,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#ofDesc").textContent = r.desc || "No extra details.";
     $("#ofBudget").textContent = r.min ? `${rupiah(r.min)} – ${rupiah(r.max)}` : `Up to ${rupiah(r.max)}`;
     $("#ofCond").textContent = COND_LABEL[r.condition];
-    $("#ofCount").textContent = r.offers.length;
+    $("#ofCount").textContent = (r.offerCount ?? r.offers.length);
     const refBox = $("#ofPhotos");
     refBox.hidden = !(r.photos && r.photos.length);
     refBox.innerHTML = (r.photos || []).map((src, i) => `<button type="button" data-ref="${i}" aria-label="View reference photo ${i + 1}"><img src="${src}" alt="" /></button>`).join("");
@@ -179,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#ofFields").hidden = true;
       st.hidden = false;
       st.className = "bx-status offers-box";
-      st.innerHTML = r.offers.length ? `<p><strong>Offers you received</strong></p>${r.offers.map((o) => {
+      st.innerHTML = (r.offerCount ?? r.offers.length) ? `<p><strong>Offers you received</strong></p>${r.offers.map((o) => {
         const s = Store.getUser(o.userId);
         return `<div class="offer-row">${avatarHTML(s, 32)}<div><strong>${esc(s?.name || "Student")}</strong> · ${esc(o.item)} · <strong>${rupiah(o.price)}</strong> (${CONDITION_LABEL[o.condition]})${o.msg ? `<br /><span class="hint">“${esc(o.msg)}”</span>` : ""}</div><a class="btn btn--outline btn--sm" href="messages.html?to=${o.userId}&request=${r.id}"><i data-lucide="message-circle-more"></i>Chat</a></div>`;
       }).join("")}` : "<p>No offers yet. Students will see your request on this page.</p>";
@@ -214,19 +212,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!hint.hidden) hint.textContent = `That's above their budget (max ${rupiah(r.max)}). You can still send it, but it may be declined.`;
   }
   $("#ofPrice").addEventListener("input", updatePriceHint);
-  $("#offerForm").addEventListener("submit", (e) => {
+  $("#offerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const r = Store.getRequest(openId);
     const mode = $("#ofSubmit").dataset.mode;
     if (mode === "close") return offerDialog.close();
     if (!requireLogin("Log in to send an offer.")) return;
-    if (mode === "withdraw") { Store.withdrawRequestOffer(r.id); offerDialog.close(); render(); return toast("Offer withdrawn."); }
+    if (mode === "withdraw") { await Store.withdrawRequestOffer(r.id); offerDialog.close(); render(); return toast("Offer withdrawn."); }
     const item = $("#ofItem").value.trim();
     const price = Number($("#ofPrice").value);
     const err = $("#ofError");
     if (item.length < 3) { err.textContent = "Describe the item you have."; err.hidden = false; $("#ofItem").focus(); return; }
     if (!price || price <= 0) { err.textContent = "Enter your price."; err.hidden = false; $("#ofPrice").focus(); return; }
-    const res = Store.offerOnRequest(r.id, { item, price, condition: $("#ofCondition").value, msg: $("#ofMsg").value.trim() });
+    const res = await Store.offerOnRequest(r.id, { item, price, condition: $("#ofCondition").value, msg: $("#ofMsg").value.trim() });
     if (res.error) { err.textContent = res.error; err.hidden = false; return; }
     offerDialog.close();
     render();
@@ -292,12 +290,12 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const photos = [];
       for (const p of pendingPhotos) photos.push(await Store.compressImage(p.file, 640, 0.7));
-      Store.createRequest({
+      await Store.createRequest({
         title, category: $("#pCategory").value, min: min || 0, max, condition: $("#pCondition").value,
         tikum: $("#pArea").value, neededBy: Date.now() + Number($("#pDays").value) * 86400e3, desc: $("#pDesc").value.trim(), photos,
       });
     } catch (ex) { return fail(ex.message || "Couldn't save your request.", $("#pTitle")); }
-    if (me().faculty !== $("#pFaculty").value) Store.updateUser(me().id, { faculty: $("#pFaculty").value });
+    if (me().faculty !== $("#pFaculty").value) await Store.updateUser(me().id, { faculty: $("#pFaculty").value });
     clearPendingPhotos();
     postDialog.close();
     setTab("mine");
@@ -363,28 +361,21 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#reqSearch").value = view.search;
     setTab("all"); render();
   });
-  $("#reqGrid").addEventListener("click", (e) => {
+  $("#reqGrid").addEventListener("click", async (e) => {
     const photo = e.target.closest("[data-photos]");
     if (photo) { const r = Store.getRequest(photo.dataset.photos); return openLightbox(r.photos, 0, r.title); }
     const offer = e.target.closest("[data-offer]");
     if (offer) { if (!isMine(Store.getRequest(offer.dataset.offer)) && !requireLogin("Log in to send an offer.")) return; return openOffer(offer.dataset.offer); }
-    const save = e.target.closest("[data-save]");
-    if (save) {
-      if (!requireLogin("Log in to save requests.")) return;
-      const on = Store.toggleSaved(me().id, "request", save.dataset.save);
-      save.classList.toggle("is-active", on); save.setAttribute("aria-pressed", String(on));
-      return toast(on ? "Request saved" : "Removed from saved");
-    }
     const found = e.target.closest("[data-found]");
     if (found) {
       const r = Store.getRequest(found.dataset.found);
       if (!confirm(`Mark "${r.title}" as found? Students won't be able to send new offers.`)) return;
-      Store.setRequestFound(r.id, true); render(); return toast("Nice! Request marked as found.");
+      await Store.setRequestFound(r.id, true); render(); return toast("Nice! Request marked as found.");
     }
     const unfound = e.target.closest("[data-unfound]");
-    if (unfound) { Store.setRequestFound(unfound.dataset.unfound, false); render(); return; }
+    if (unfound) { await Store.setRequestFound(unfound.dataset.unfound, false); render(); return; }
     const del = e.target.closest("[data-delete]");
-    if (del && confirm("Delete this request?")) { Store.deleteRequest(del.dataset.delete); render(); toast("Request deleted."); }
+    if (del && confirm("Delete this request?")) { await Store.deleteRequest(del.dataset.delete); render(); toast("Request deleted."); }
   });
   $("#activityMoreBtn").addEventListener("click", (e) => {
     view.activityAll = !view.activityAll;

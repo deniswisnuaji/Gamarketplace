@@ -138,8 +138,8 @@
             <label class="switch"><input type="checkbox" data-pref="notifPriceDrop" aria-label="Price drops" /><span class="switch__track"></span></label></li>
           <li><div><strong>Scam alerts</strong><span>Verified high-risk alerts from Scam Watch.</span></div>
             <label class="switch"><input type="checkbox" data-pref="notifScam" aria-label="Scam alerts" /><span class="switch__track"></span></label></li>
-          <li><div><strong>Email summary</strong><span>A weekly email to your UGM address.</span></div>
-            <label class="switch"><input type="checkbox" data-pref="notifEmail" aria-label="Email summary" /><span class="switch__track"></span></label></li>
+          <li><div><strong>Email summary</strong><span>Email summaries are not configured yet.</span></div>
+            <label class="switch"><input type="checkbox" data-pref="notifEmail" disabled aria-label="Email summary" /><span class="switch__track"></span></label></li>
         </ul>
       </section>
 
@@ -152,8 +152,8 @@
             <label class="switch"><input type="checkbox" data-pref="showPhone" aria-label="Show WhatsApp number" /><span class="switch__track"></span></label></li>
           <li><div><strong>Show my faculty on my profile</strong><span>Helps buyers pick a nearby meet-up point.</span></div>
             <label class="switch"><input type="checkbox" data-pref="showFaculty" aria-label="Show faculty" /><span class="switch__track"></span></label></li>
-          <li><div><strong>Only chat with verified UGM accounts</strong><span>Block messages from unverified accounts.</span></div>
-            <label class="switch"><input type="checkbox" data-pref="verifiedOnly" aria-label="Verified accounts only" /><span class="switch__track"></span></label></li>
+          <li><div><strong>Only chat with verified UGM accounts</strong><span>Email ownership verification is not configured yet.</span></div>
+            <label class="switch"><input type="checkbox" data-pref="verifiedOnly" disabled aria-label="Verified accounts only" /><span class="switch__track"></span></label></li>
         </ul>
         <a href="scam-watch.html" class="inline-link"><i data-lucide="shield-alert"></i> Read safety tips on Scam Watch</a>
       </section>
@@ -172,6 +172,8 @@
             <div><label class="bx-label" for="pwOld">Current password</label><input type="password" id="pwOld" class="text-input" autocomplete="current-password" /></div>
             <div><label class="bx-label" for="pwNew">New password</label><input type="password" id="pwNew" class="text-input" autocomplete="new-password" placeholder="8+ characters, letters and numbers" /></div>
           </div>
+          <label class="bx-label" for="pwConfirm">Confirm new password</label>
+          <input type="password" id="pwConfirm" class="text-input" autocomplete="new-password" />
           <p class="form-error" id="pwError" role="alert" hidden></p>
           <button type="button" class="btn btn--outline btn--sm" id="pwSave"><i data-lucide="key-round"></i>Update password</button>
         </div>
@@ -185,8 +187,8 @@
       <section class="panel settings-card settings-card--danger" id="danger">
         <h2 class="settings-card__title">Danger Zone</h2>
         <div class="account-row">
-          <div><strong>Delete my account</strong><span>Permanently removes your profile, listings and chats.</span></div>
-          <button type="button" class="btn btn--danger btn--sm" id="deleteBtn">Delete account</button>
+          <div><strong>Delete my account</strong><span>Ask support to review account removal while preserving required transaction and safety records.</span></div>
+          <button type="button" class="btn btn--danger btn--sm" id="deleteBtn">Contact support</button>
         </div>
       </section>
 

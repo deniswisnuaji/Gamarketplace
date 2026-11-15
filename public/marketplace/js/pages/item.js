@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   /* ============ ITEM DETAIL ============ */
   // item.html?id=… — shows one listing from Store.
   const id = new URLSearchParams(location.search).get("id");
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ${l.type === "auction" ? `<button type="button" class="btn btn--outline" id="chatBtn"><i data-lucide="message-circle-more"></i><span>Chat seller</span></button>` : ""}
           <button type="button" class="btn btn--outline wish-big${saved ? " is-active" : ""}" id="saveBtn" aria-pressed="${!!saved}"><i data-lucide="heart"></i><span>${saved ? "Saved" : "Save"}</span></button>
         </div>
-        <a href="scam-watch.html?report=1&about=${encodeURIComponent(l.title)}" class="report-link"><i data-lucide="flag"></i>Report this listing</a>`;
+        <a href="scam-watch.html?report=1&kind=listing&listingId=${l.id}&subjectUserId=${l.sellerId}&about=${encodeURIComponent(l.title)}" class="report-link"><i data-lucide="flag"></i>Report this listing</a>`;
     }
 
     root.innerHTML = `
@@ -89,10 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // count a view once per visit (not for the owner)
   const l0 = Store.getListing(id);
   if (l0 && Store.isPublic(l0) && (!user || user.id !== l0.sellerId)) {
-    try { if (!sessionStorage.getItem("gm-viewed-" + id)) { sessionStorage.setItem("gm-viewed-" + id, "1"); Store.addView(id); render(); } } catch {}
+    try { if (!sessionStorage.getItem("gm-viewed-" + id)) { await Store.addView(id); sessionStorage.setItem("gm-viewed-" + id, "1"); render(); } } catch {}
   }
 
-  root.addEventListener("click", (e) => {
+  root.addEventListener("click", async (e) => {
     const l = Store.getListing(id);
     const t = e.target.closest("[data-photo]");
     if (t) {
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (e.target.closest("#saveBtn")) {
       if (!requireLogin("Log in to save items.")) return;
-      const on = Store.toggleSaved(me().id, "listing", l.id);
+      const on = await Store.toggleSaved(me().id, "listing", l.id);
       render();
       toast(on ? "Saved to your wishlist" : "Removed from your wishlist");
     }
