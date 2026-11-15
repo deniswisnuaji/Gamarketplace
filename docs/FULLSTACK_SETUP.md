@@ -9,7 +9,6 @@ The `Gamarketplace` subfolder is a fresh checkout on local branch `fullstack`. P
 To continue here:
 
 ```bash
-cd '/home/denisaji/Documents/ChatGPT/Commit Web Design Competition/Gamarketplace'
 git status
 php artisan serve
 ```
