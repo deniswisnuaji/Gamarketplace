@@ -79,7 +79,7 @@ This is a competition prototype, not a production marketplace. Email domain rest
 
 ## Tools and credits
 
- **AI assistance:** ChatGPT (OpenAI) brainstorming, code suggestions/debugging, and documentation ; Claude was used to help with Laravel integration ; Gemini was used to suggest UI/UX & Documentation. The team reviewed and adapted the output.
+- **AI assistance:** ChatGPT (OpenAI) brainstorming, code suggestions/debugging, and documentation ; Claude was used to help with Laravel integration ; Gemini was used to suggest UI/UX & Documentation. The team reviewed and adapted the output.
 - **Starter code:** Laravel Vue starter kit — https://laravel.com/starter-kits
 - **Libraries and packages:** See [`composer.json`](composer.json) and [`package.json`](package.json). Licenses remain with their respective maintainers.
   
