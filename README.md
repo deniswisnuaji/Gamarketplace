@@ -4,39 +4,34 @@ RAAR's Project repository for COMMIT Web Design Competition 2026.
 
 #### Created with the _**Power of Friendship✨**_ & _Barely_ ~~un~~healthy amount of caffeine and milk☕.
 
-#### Overview
+## Overview
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+GaMarketplace is a secondhand marketplace for UGM students. Students can list items they no longer need, find cheaper alternatives, and arrange exchanges around campus. We also added auctions, wanted-item requests, and basic reporting tools to make the experience more useful than a simple listing board.
 
-#### Why This?
+## Why we made it
+Buying and selling used goods through group chats can get messy. Listings disappear under new messages, people keep asking whether an item is still available, and buyers have little context about who they're dealing with.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident
+Our idea was to put these interactions in one place, with a focus on affordability, reuse, and meet-ups around campus. It's our entry for COMMIT 2026's theme, Optimasi Keuangan dan Gaya Hidup.
 
-## The Project
+## Features
 
-### Features
+ **Listings:** Create and manage secondhand listings with images, prices, categories, and suggested meet-up points. New listings go through admin review before appearing publicly.
+- **Marketplace:** Browse and filter available items, then view their details.
+- **Auctions:** Place bids or use Buy Now on eligible items. Auctions can close automatically through Laravel's scheduler.
+- **Looking for:** Post wanted-item requests and respond with offers.
+- **Messages and meet-ups:** Chat with other users, share images, and propose a campus meet-up.
+- **Wishlist and notifications:** Save interesting listings and keep track of updates.
+- **Reports and moderation:** Report suspicious activity or technical issues; admins can review listings, reports, and accounts.
 
-#### Lorem
+## Tech stack
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-
-#### Lorem Ipsum
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-
-### Demonstration
-
-#### Lorem
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
-
-![Image Placeholder](instagram.com/denisadji._)
-
-#### Lorem
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet
-
-![Image Placeholder](instagram.com/denisadji._)
+| Part                 | Technology                                                      |
+| -------------------- | --------------------------------------------------------------- |
+| UI                   | HTML, CSS, JavaScript, Laravel Blade                            |
+| Backend              | PHP 8.4.1+, Laravel 13                                          |
+| Database             | SQLite (default local setup); MySQL supported                   |
+| Frontend tooling     | Node.js, npm, Vite                                              |
+| Starter dependencies | Laravel Vue starter kit (Vue and Inertia packages are included) |
 
 ## Technology Stacks
 
@@ -47,6 +42,11 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 | Database        | MySQL                        |
 | Build Tools     | Vite, npm                    |
 | Version Control | Git, Github                  |
+
+## Limitations
+
+This is a competition prototype, not a production marketplace. Email domain restrictions are in place, but UGM SSO and email ownership verification are not implemented. We haven't integrated payment processing, delivery, or live GPS tracking. Email delivery and a production scheduler require deployment configuration.
+
 
 ## Getting Started
 
@@ -62,10 +62,16 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 
 ### Links & Deployment
 
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium
+![Gamarketplace Link](https://gamarketplace-production.up.railway.app/gm/main.html)
 
-![Useful Links](https://www.youtube.com/watch?v=QDia3e12czc)
+or copy and paste this: "https://gamarketplace-production.up.railway.app/gm/main.html"
 
+## Tools and credits
+
+ **AI assistance:** ChatGPT (OpenAI) brainstorming, code suggestions/debugging, and documentation ; Claude was used to help with Laravel integration ; Gemini was used to suggest UI/UX & Documentation. The team reviewed and adapted the output.
+- **Starter code:** Laravel Vue starter kit — https://laravel.com/starter-kits
+- **Libraries and packages:** See [`composer.json`](composer.json) and [`package.json`](package.json). Licenses remain with their respective maintainers.
+  
 ## About Us
 
 ### Team Members
