@@ -33,20 +33,9 @@ Our idea was to put these interactions in one place, with a focus on affordabili
 | Frontend tooling     | Node.js, npm, Vite                                              |
 | Starter dependencies | Laravel Vue starter kit (Vue and Inertia packages are included) |
 
-## Technology Stacks
-
-| Category        | Technology                   |
-| --------------- | ---------------------------- |
-| Frontend        | HTML, CSS, Javascript, Blade |
-| Backend         | Laravel (PHP)                |
-| Database        | MySQL                        |
-| Build Tools     | Vite, npm                    |
-| Version Control | Git, Github                  |
-
 ## Limitations
 
 This is a competition prototype, not a production marketplace. Email domain restrictions are in place, but UGM SSO and email ownership verification are not implemented. We haven't integrated payment processing, delivery, or live GPS tracking. Email delivery and a production scheduler require deployment configuration.
-
 
 ## Getting Started
 
