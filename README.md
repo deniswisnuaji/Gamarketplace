@@ -13,6 +13,46 @@ Buying and selling used goods through group chats can get messy. Listings disapp
 
 Our idea was to put these interactions in one place, with a focus on affordability, reuse, and meet-ups around campus. It's our entry for COMMIT 2026's theme, Optimasi Keuangan dan Gaya Hidup.
 
+## Getting Started
+
+### Links & Deployment
+
+![Gamarketplace Link](https://gamarketplace-production.up.railway.app/gm/main.html)
+
+or copy and paste this: "https://gamarketplace-production.up.railway.app/gm/main.html"
+
+**Accessing through deployed website is recommended, alternatively you could run it from your local machine**
+
+### Prerequisites
+
+You'll need PHP 8.4.1+, Composer, Node.js/npm, and PHP's SQLite extension. We used Node.js 22 for development.
+
+### Installation
+
+Clone the repository and install the dependencies:
+
+```bash
+git clone https://github.com/deniswisnuaji/Gamarketplace.git
+cd Gamarketplace
+composer install
+npm ci
+```
+Create a local environment file (`copy .env.example .env` on Windows Command Prompt), then initialize the application:
+
+```bash
+cp .env.example .env
+php artisan key:generate
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+php artisan migrate --seed
+php artisan storage:link
+npm run build
+php artisan serve
+```
+
+Open **http://127.0.0.1:8000/gm/main.html**.
+
+The default local setup uses SQLite. To use MySQL instead, create a database, update the `DB_*` values in your `.env`, and run `php artisan config:clear` followed by `php artisan migrate --seed`.
+
 ## Features
 
  **Listings:** Create and manage secondhand listings with images, prices, categories, and suggested meet-up points. New listings go through admin review before appearing publicly.
@@ -36,24 +76,6 @@ Our idea was to put these interactions in one place, with a focus on affordabili
 ## Limitations
 
 This is a competition prototype, not a production marketplace. Email domain restrictions are in place, but UGM SSO and email ownership verification are not implemented. We haven't integrated payment processing, delivery, or live GPS tracking. Email delivery and a production scheduler require deployment configuration.
-
-## Getting Started
-
-### Prerequisites
-
-- Sed ut perspiciatis unde omnis iste natus error sit
-- Sed ut perspiciatis unde omnis iste
-- Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium
-
-### Installation
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia.
-
-### Links & Deployment
-
-![Gamarketplace Link](https://gamarketplace-production.up.railway.app/gm/main.html)
-
-or copy and paste this: "https://gamarketplace-production.up.railway.app/gm/main.html"
 
 ## Tools and credits
 
