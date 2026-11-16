@@ -17,7 +17,7 @@ Our idea was to put these interactions in one place, with a focus on affordabili
 
 ### Links & Deployment
 
-![Gamarketplace Link](https://gamarketplace-production.up.railway.app/gm/main.html)
+[Gamarketplace Link](https://gamarketplace-production.up.railway.app/gm/main.html)
 
 or copy and paste this: "https://gamarketplace-production.up.railway.app/gm/main.html"
 
@@ -55,7 +55,7 @@ The default local setup uses SQLite. To use MySQL instead, create a database, up
 
 ## Features
 
- **Listings:** Create and manage secondhand listings with images, prices, categories, and suggested meet-up points. New listings go through admin review before appearing publicly.
+- **Listings:** Create and manage secondhand listings with images, prices, categories, and suggested meet-up points. New listings go through admin review before appearing publicly.
 - **Marketplace:** Browse and filter available items, then view their details.
 - **Auctions:** Place bids or use Buy Now on eligible items. Auctions can close automatically through Laravel's scheduler.
 - **Looking for:** Post wanted-item requests and respond with offers.
